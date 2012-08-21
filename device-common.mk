@@ -80,6 +80,10 @@ PRODUCT_COPY_FILES += \
    device/notionink/adam_common/files/busybox:system/bin/busybox \
    device/notionink/adam_common/files/su:system/xbin/su
 
+# Fix for market paid apps
+PRODUCT_COPY_FILES += \
+   device/notionink/adam_common/files/make_ext4fs:system/bin/make_ext4fs
+
 # Additional APKs
 PRODUCT_PACKAGES += \
 	SuperUser \
