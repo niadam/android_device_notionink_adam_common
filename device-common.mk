@@ -75,6 +75,15 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
    device/notionink/adam_common/files/apns-conf.xml:system/etc/apns-conf.xml
 
+# Busybox and su
+PRODUCT_COPY_FILES += \
+   device/notionink/adam_common/files/busybox:system/bin/busybox \
+   device/notionink/adam_common/files/su:system/xbin/su
+
+# Additional APKs
+PRODUCT_PACKAGES += \
+	SuperUser \
+	Term
       
 PRODUCT_PROPERTY_OVERRIDES := \
     wifi.interface=wlan0 \
