@@ -5,7 +5,7 @@ on early-init
 
     export SECONDARY_STORAGE /storage/microsd
     export EXTERNAL_STORAGE /storage/sdcard0
-    mkdir /storage 0050 system sdcard_r
+    mkdir /storage 0775 system sdcard_rw
     mkdir /storage/sdcard0 0000 system system
     mkdir /storage/sdcard1 0000 system system
     mkdir /mnt/usbdrive1 0666 system system
