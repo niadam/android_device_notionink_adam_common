@@ -77,8 +77,8 @@ PRODUCT_COPY_FILES += \
 
 # Busybox and su
 PRODUCT_COPY_FILES += \
-   device/notionink/adam_common/files/busybox:system/bin/busybox \
-   device/notionink/adam_common/files/su:system/xbin/su
+   device/notionink/adam_common/files/busybox:system/bin/busybox #\
+#   device/notionink/adam_common/files/su:system/xbin/su
 
 # Fix for market paid apps
 PRODUCT_COPY_FILES += \
@@ -86,8 +86,8 @@ PRODUCT_COPY_FILES += \
 
 # Additional APKs
 PRODUCT_PACKAGES += \
-	SuperUser \
-	Term
+#	SuperUser \
+#	Term
       
 PRODUCT_PROPERTY_OVERRIDES := \
     wifi.interface=wlan0 \
