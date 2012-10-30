@@ -46,5 +46,9 @@ PRODUCT_PACKAGES += \
         Velvet \
 	VoiceSearchStub \
 	YouTube \
-	PlayMusic
+	PlayMusic \
+	Microbes \
+	QuickSearchBox \
+	Talkback \
+	Thinkfree
 
