@@ -47,8 +47,8 @@ PRODUCT_PACKAGES += \
 	VoiceSearchStub \
 	YouTube \
 	PlayMusic \
-	Microbes \
-	QuickSearchBox \
-	Talkback \
-	Thinkfree
+#	Microbes \
+#	QuickSearchBox \
+	Talkback #\
+#	Thinkfree
 
