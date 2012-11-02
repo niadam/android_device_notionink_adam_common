@@ -48,7 +48,7 @@ PRODUCT_PACKAGES += \
 	YouTube \
 	PlayMusic \
 	Microbes \
-	QuickSearchBox \
+	QuickSearchBox1 \
 	Talkback \
 	Thinkfree
 
