@@ -32,6 +32,7 @@ PRODUCT_AAPT_CONFIG := normal mdpi
 PRODUCT_AAPT_PREF_CONFIG := mdpi
 PRODUCT_LOCALES += mdpi
 
+LOCAL_ACP_UNAVAILABLE := false
 
 # Adam/Harmony Configs
 PRODUCT_COPY_FILES := \
@@ -87,9 +88,8 @@ PRODUCT_COPY_FILES += \
 
 # Additional APKs
 PRODUCT_PACKAGES += \
-	SuperUser \
-	Term
-      
+	Superuser
+	      
 PRODUCT_PROPERTY_OVERRIDES := \
     wifi.interface=wlan0 \
     ro.sf.lcd_density=120 \
