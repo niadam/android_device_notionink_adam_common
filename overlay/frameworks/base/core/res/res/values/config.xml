@@ -40,7 +40,7 @@
    <integer name="config_deskDockKeepsScreenOn">0</integer>
    <integer name="config_lidNavigationAccessibility">1</integer>
 
-    <bool name="config_automatic_brightness_available">false</bool>
+    <bool name="config_automatic_brightness_available">true</bool>
 
     <!-- Array of light sensor LUX values to define our levels for auto backlight brightness support.
          The N entries of this array define N  1 zones as follows:
@@ -182,7 +182,7 @@
         <item>"mobile_dun,4,0,3,60000,true"</item>
         <item>"mobile_hipri,5,0,3,60000,true"</item>  
         <item>"bluetooth,7,7,0,-1,true"</item>
-        <item>"wifi_p2p,13,1,0,-1,true"</item>
+<!--        <item>"wifi_p2p,13,1,0,-1,true"</item>-->
     </string-array>
 
     <!-- This string array should be overridden by the device to present a list of radio
@@ -197,7 +197,7 @@
     </string-array>
 
 	<!-- Boolean indicating whether the wifi chipset has p2p support -->
-    <bool translatable="false" name="config_wifi_p2p_support">true</bool>
+    <bool translatable="false" name="config_wifi_p2p_support">false</bool>
     <!-- Device type information conforming to Annex B format in WiFi Direct specification.
          The default represents a dual-mode smartphone -->
     <string translatable="false" name="config_wifi_p2p_device_type">10-0050F204-5</string>
