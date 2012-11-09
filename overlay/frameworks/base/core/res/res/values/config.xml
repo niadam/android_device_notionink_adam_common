@@ -40,7 +40,10 @@
    <integer name="config_deskDockKeepsScreenOn">0</integer>
    <integer name="config_lidNavigationAccessibility">1</integer>
 
-    <bool name="config_automatic_brightness_available">false</bool>
+    <integer name="db_connection_pool_size">3</integer>
+    <integer name="config_downloadDataDirSize">200</integer>
+
+    <bool name="config_automatic_brightness_available">true</bool>
 
     <!-- Array of light sensor LUX values to define our levels for auto backlight brightness support.
          The N entries of this array define N  1 zones as follows:
@@ -142,6 +145,7 @@
 
     <!-- Boolean indicating whether the wifi chipset has dual frequency band support -->
     <bool translatable="false" name="config_wifi_dual_band_support">true</bool>
+    <bool name="config_wifi_background_scan_support">true</bool>
 
     <!-- Package name providing network location support. -->
     <string name="config_networkLocationProviderPackageName" translatable="false">com.google.android.location</string>
