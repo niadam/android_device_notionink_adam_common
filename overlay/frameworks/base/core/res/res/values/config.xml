@@ -243,5 +243,8 @@
             2 - Power off (with confirmation)
     -->
     <integer name="config_longPressOnPowerBehavior">2</integer>
+
+    <!--  Maximum number of supported users -->
+    <integer name="config_multiuserMaximumUsers">8</integer>
 	
 </resources>
