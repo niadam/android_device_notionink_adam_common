@@ -189,6 +189,7 @@ struct route_setting defaults[] = {
     {
         .ctl_name = INTERNAL_MIC_SWITCH,
         .intval = 1,
+	.post_delay_ms = 200, /* Perform a post delay of 200 ms before next step */
     },
     {
         .ctl_name = MIXER_HPL_OUTMUX,
@@ -219,19 +220,20 @@ struct route_setting defaults[] = {
 struct route_setting headphone_route[] = {
     {
         .ctl_name = HEADPHONE_JACK_SWITCH,
-		.intval = 1,
+	.intval = 1,
     },
     {
         .ctl_name = MIXER_HEADSET_PLAYBACK_SWITCH,
-		.intval = 1,
+	.intval = 1,
     },
     {
         .ctl_name = INTERNAL_SPEAKER_SWITCH,
-		.intval = 0,
+	.intval = 0,
+	.post_delay_ms = 200, /* Post delay before next step to avoid pops */
     },
     {
         .ctl_name = MIXER_SPEAKER_PLAYBACK_SWITCH,
-		.intval = 0,
+	.intval = 0,
     },
     {
         .ctl_name = NULL,
@@ -242,19 +244,20 @@ struct route_setting headphone_route[] = {
 struct route_setting speaker_route[] = {
     {
         .ctl_name = HEADPHONE_JACK_SWITCH,
-		.intval = 0,
+	.intval = 0,
     },
     {
         .ctl_name = MIXER_HEADSET_PLAYBACK_SWITCH,
-		.intval = 0,
+	.intval = 0,
     },
     {
         .ctl_name = INTERNAL_SPEAKER_SWITCH,
-		.intval = 1,
+	.intval = 1,
+	.post_delay_ms = 200, /* Post delay before next step to avoid pops */
     },
     {
         .ctl_name = MIXER_SPEAKER_PLAYBACK_SWITCH,
-		.intval = 1,
+	.intval = 1,
     },
     {
         .ctl_name = NULL,
@@ -265,19 +268,20 @@ struct route_setting speaker_route[] = {
 struct route_setting speaker_headphone_route[] = {
     {
         .ctl_name = HEADPHONE_JACK_SWITCH,
-		.intval = 1,
+	.intval = 1,
     },
     {
         .ctl_name = MIXER_HEADSET_PLAYBACK_SWITCH,
-		.intval = 1,
+	.intval = 1,
     },
     {
         .ctl_name = INTERNAL_SPEAKER_SWITCH,
-		.intval = 1,
+	.intval = 1,
+	.post_delay_ms = 200, /* Post delay before next step to avoid pops */
     },
     {
         .ctl_name = MIXER_SPEAKER_PLAYBACK_SWITCH,
-		.intval = 1,
+	.intval = 1,
     },
     {
         .ctl_name = NULL,
@@ -288,19 +292,19 @@ struct route_setting speaker_headphone_route[] = {
 struct route_setting no_out_route[] = {
     {
         .ctl_name = HEADPHONE_JACK_SWITCH,
-		.intval = 0,
+	.intval = 0,
     },
     {
         .ctl_name = MIXER_HEADSET_PLAYBACK_SWITCH,
-		.intval = 0,
+	.intval = 0,
     },
     {
         .ctl_name = INTERNAL_SPEAKER_SWITCH,
-		.intval = 0,
+	.intval = 0,
     },
     {
         .ctl_name = MIXER_SPEAKER_PLAYBACK_SWITCH,
-		.intval = 0,
+	.intval = 0,
     },
     {
         .ctl_name = NULL,
@@ -322,6 +326,18 @@ struct mixer_ctls
 	struct mixer_ctl *HPEnDAC;
 	struct mixer_ctl *SpkEnDAC;
 };
+
+static int msleep(unsigned long milisec)
+{
+    struct timespec req={0};
+    time_t sec=(int)(milisec/1000);
+    milisec=milisec-(sec*1000);
+    req.tv_sec=sec;
+    req.tv_nsec=milisec*1000000L;
+	while(nanosleep(&req,&req)==-1 && errno == EINTR)
+         continue;
+    return 1;
+}
 
 /* The enable flag when 0 makes the assumption that enums are disabled by
  * "Off" and integers/booleans by 0 */
@@ -352,6 +368,10 @@ static int set_route_by_array(struct mixer *mixer, struct route_setting *route,
                     mixer_ctl_set_value(ctl, j, 0);
             }
         }
+	/* Perform a delay if needed for stabilization purposes */
+	if (route[i].post_delay_ms) {
+		msleep(route[i].post_delay_ms);
+	}
         i++;
     }
 
@@ -1491,22 +1511,6 @@ static int adev_close(hw_device_t *device)
     return 0;
 }
 
-/* xface */
-static uint32_t adev_get_supported_devices(const struct audio_hw_device *dev)
-{
-	ALOGD("adev_get_supported_devices");
-    return (/* OUT */
-            AUDIO_DEVICE_OUT_SPEAKER |
-            AUDIO_DEVICE_OUT_WIRED_HEADPHONE |
-            AUDIO_DEVICE_OUT_AUX_DIGITAL |
-			AUDIO_DEVICE_OUT_ALL_SCO |
-            AUDIO_DEVICE_OUT_DEFAULT |
-            /* IN */
-            AUDIO_DEVICE_IN_BUILTIN_MIC |
-			AUDIO_DEVICE_IN_ALL_SCO |
-            AUDIO_DEVICE_IN_DEFAULT);
-}
-
 static int adev_open(const hw_module_t* module, const char* name,
                      hw_device_t** device)
 {
@@ -1523,11 +1527,10 @@ static int adev_open(const hw_module_t* module, const char* name,
         return -ENOMEM;
 
     adev->hw_device.common.tag = HARDWARE_DEVICE_TAG;
-    adev->hw_device.common.version = AUDIO_DEVICE_API_VERSION_1_0;
+    adev->hw_device.common.version = AUDIO_DEVICE_API_VERSION_2_0;
     adev->hw_device.common.module = (struct hw_module_t *) module;
     adev->hw_device.common.close = adev_close;
 
-    adev->hw_device.get_supported_devices = adev_get_supported_devices;
     adev->hw_device.init_check = adev_init_check;
     adev->hw_device.set_voice_volume = adev_set_voice_volume;
     adev->hw_device.set_master_volume = adev_set_master_volume;
