@@ -137,6 +137,7 @@ struct route_setting
     char *ctl_name;
     int intval;
     char *strval;
+    int post_delay_ms;
 };
 
 /* These are values that never change */
