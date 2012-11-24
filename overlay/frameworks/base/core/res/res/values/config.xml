@@ -27,7 +27,7 @@
     <!-- This device does not allow sms service. -->
     <bool name="config_sms_capable">true</bool>
 
-    <bool name="config_showNavigationBar">false</bool>
+    <bool name="config_showNavigationBar">true</bool>
 
     <string name="config_datause_iface">wwan0</string>
 
