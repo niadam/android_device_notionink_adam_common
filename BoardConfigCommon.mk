@@ -22,6 +22,9 @@ USE_CAMERA_STUB := false
 BOARD_USES_AUDIO_LEGACY := false
 TARGET_USES_OLD_LIBSENSORS_HAL := false
 
+# Default value, if not overridden else where.
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR ?= device/notionink/adam_common/bluetooth
+
 # Use the non-open-source parts, if they're present
 -include vendor/notionink/adam/BoardConfigVendor.mk
 
