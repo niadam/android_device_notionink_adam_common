@@ -55,6 +55,12 @@ on boot
     symlink /system/lib/hw/wlan/bcm4329B1.hcd /data/bcm4329B1.hcd
     chmod 0777 /data/bcm4329B1.hcd
 
+    # bluetooth LPM
+    chmod 0220 /proc/bluetooth/sleep/lpm
+    chmod 0220 /proc/bluetooth/sleep/btwrite
+    chown bluetooth bluetooth /proc/bluetooth/sleep/lpm
+    chown bluetooth bluetooth /proc/bluetooth/sleep/btwrite
+
 # backlight
     chown system system /sys/class/backlight/pwm-backlight/brightness
 
