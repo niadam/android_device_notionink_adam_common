@@ -45,11 +45,11 @@ on boot
 
 # bluetooth permissions
     chmod 0660 /dev/ttyHS2
-    chown bluetooth bluetooth /dev/ttyHS2
+    chown bluetooth net_bt_stack /dev/ttyHS2
     chmod 0660 /sys/class/rfkill/rfkill0/state
     chmod 0660 /sys/class/rfkill/rfkill0/type
-    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/state
-    chown bluetooth bluetooth /sys/class/rfkill/rfkill0/type
+    chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/state
+    chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/type
     write /sys/class/rfkill/rfkill0/state 0
     symlink /system/lib/hw/wlan/bcm4329B1.hcd /data/BCM4329B1.hcd
     symlink /system/lib/hw/wlan/bcm4329B1.hcd /data/bcm4329B1.hcd
