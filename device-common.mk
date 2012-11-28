@@ -52,6 +52,10 @@ PRODUCT_COPY_FILES += \
 # Bluetooth
 PRODUCT_COPY_FILES += \
     device/notionink/adam_common/files/bcm4329.hcd:system/etc/firmware/bcm4329.hcd
+
+# Bluetooth config file
+PRODUCT_COPY_FILES += \
+    system/bluetooth/data/main.nonsmartphone.conf:system/etc/bluetooth/main.conf \
 	
 # Touchscreen
 PRODUCT_COPY_FILES += \
@@ -151,7 +155,11 @@ PRODUCT_CHARACTERISTICS := tablet
 PRODUCT_TAGS += dalvik.gc.type-precise
 
 PRODUCT_PACKAGES += \
-	com.android.future.usb.accessory 
+	com.android.future.usb.accessory \
+	librs_jni \
+	l2ping \
+	hcitool \
+	bttest \
 
 # Filesystem management tools
 PRODUCT_PACKAGES += \
