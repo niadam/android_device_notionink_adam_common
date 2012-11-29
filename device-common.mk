@@ -53,9 +53,10 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     device/notionink/adam_common/files/bcm4329.hcd:system/etc/firmware/bcm4329.hcd
 
-# Bluetooth config file
+# Bluetooth config files
 PRODUCT_COPY_FILES += \
     system/bluetooth/data/main.nonsmartphone.conf:system/etc/bluetooth/main.conf \
+    device/notionink/adam_common/files/bt_vendor.conf:system/etc/bluetooth/bt_vendor.conf \
 	
 # Touchscreen
 PRODUCT_COPY_FILES += \
