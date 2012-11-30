@@ -3,17 +3,26 @@ import init.harmony.usb.rc
 on early-init
     mount debugfs debugfs /sys/kernel/debug
 
-    export SECONDARY_STORAGE /storage/microsd
-    export EXTERNAL_STORAGE /storage/sdcard0
-    mkdir /storage 0775 system sdcard_rw
-    mkdir /storage/sdcard0 0000 system system
+    mkdir /mnt/shell/emulated 0700 shell shell
+    mkdir /storage 0550 system sdcard_r
+    mkdir /storage/emulated 0555 root root
+    export EXTERNAL_STORAGE /storage/emulated/legacy
+    export SECONDARY_STORAGE /storage/sdcard1
+    export EMULATED_STORAGE_SOURCE /mnt/shell/emulated
+    export EMULATED_STORAGE_TARGET /storage/emulated
+
+    # for backwards compatibility
+    symlink /storage/emulated/legacy /sdcard	
+    symlink /storage/emulated/legacy /mnt/sdcard	
+    symlink /storage/emulated/legacy /storage/sdcard0
+    symlink /mnt/shell/emulated/0 /storage/emulated/legacy
+
+    # make the pathes for the external media mounts
     mkdir /storage/sdcard1 0000 system system
     mkdir /mnt/usbdrive1 0666 system system
     mkdir /mnt/usbdrive2 0666 system system
 
     # for backwards compatibility
-    symlink /storage/sdcard0 /sdcard
-    symlink /storage/sdcard0 /mnt/sdcard
     symlink /mnt/usbdrive1 /usbdrive1
     symlink /mnt/usbdrive2 /usbdrive2
     symlink /storage/sdcard1 /microsd
@@ -32,8 +41,8 @@ on post-fs-data
     chown dhcp dhcp /data/misc/dhcp
 
     # we will remap this as /mnt/sdcard with the sdcard fuse tool
-#    mkdir /data/media 0775 media_rw media_rw
-#    chown media_rw media_rw /data/media
+    mkdir /data/media 0770 media_rw media_rw
+    chown media_rw media_rw /data/media
 
     # Set indication (checked by vold) that we have finished this action
     setprop vold.post_fs_data_done 1
@@ -93,6 +102,12 @@ on boot
     mkdir /data/gps
     chown system system /data/gps
     chmod 770 /data/gps
+
+# create virtual SD card at /mnt/sdcard, based on the /data/media directory
+# deamon will drop to user/group system/media_rw after initializing
+# underlying files in /data/media wil be created with user and group media_rw (1023)
+service sdcard /system/bin/sdcard /data/media 1023 1023
+    class late_start
 
 service wpa_supplicant /system/bin/wpa_supplicant \
     -Dnl80211 -iwlan0 -puse_p2p_group_interface=1 -c/data/misc/wifi/wpa_supplicant.conf -e/data/misc/wifi/entropy.bin
