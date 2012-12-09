@@ -3,36 +3,48 @@ import init.harmony.usb.rc
 on early-init
     mount debugfs debugfs /sys/kernel/debug
 
+on init
     mkdir /mnt/shell/emulated 0700 shell shell
     mkdir /storage 0550 system sdcard_r
     mkdir /storage/emulated 0555 root root
     export EXTERNAL_STORAGE /storage/emulated/legacy
     export SECONDARY_STORAGE /storage/sdcard1
+    export SECOND_VOLUME_STORAGE /storage/sdcard1
+    export THIRD_VOLUME_STORAGE /storage/sdcard2
     export EMULATED_STORAGE_SOURCE /mnt/shell/emulated
     export EMULATED_STORAGE_TARGET /storage/emulated
 
     # for backwards compatibility
-    symlink /storage/emulated/legacy /sdcard	
-    symlink /storage/emulated/legacy /mnt/sdcard	
+    symlink /storage/emulated/legacy /sdcard
+    symlink /storage/emulated/legacy /mnt/sdcard
     symlink /storage/emulated/legacy /storage/sdcard0
     symlink /mnt/shell/emulated/0 /storage/emulated/legacy
 
     # make the pathes for the external media mounts
     mkdir /storage/sdcard1 0000 system system
+    mkdir /storage/sdcard2 0000 system system
     mkdir /mnt/usbdrive1 0666 system system
     mkdir /mnt/usbdrive2 0666 system system
 
     # for backwards compatibility
     symlink /mnt/usbdrive1 /usbdrive1
     symlink /mnt/usbdrive2 /usbdrive2
-    symlink /storage/sdcard1 /microsd
-    symlink /storage/sdcard1 /mnt/microsd
+    symlink /storage/sdcard1 /internal_sd
+    symlink /storage/sdcard1 /mnt/internal_sd
+    symlink /storage/sdcard2 /microsd
+    symlink /storage/sdcard2 /mnt/microsd
 
 on fs
     # Mount /system rw first to give the filesystem a chance to save a checkpoint
     setprop ro.crypto.tmpfs_options size=128m,mode=0771,uid=1000,gid=1000
+    setprop ro.crypto.umount_sd false
+    setprop ro.crypto.fuse_sdcard true
     mount ext4 /dev/block/mmcblk0p2 /data wait noatime nosuid nodev
     mount_all /fstab.harmony
+
+on post-fs
+    # Keep rootfs rw since FUSE needs dir creation
+    mount rootfs rootfs / rw remount
 
 on post-fs-data
     mkdir /data/misc/wifi 0770 wifi wifi
@@ -107,11 +119,6 @@ on boot
     write /sys/block/mmcblk0/queue/read_ahead_kb 2048
     write /sys/block/mmcblk1/queue/read_ahead_kb 2048
 
-# create virtual SD card at /mnt/sdcard, based on the /data/media directory
-# deamon will drop to user/group system/media_rw after initializing
-# underlying files in /data/media wil be created with user and group media_rw (1023)
-service sdcard /system/bin/sdcard /data/media 1023 1023
-    class late_start
 
 service wpa_supplicant /system/bin/wpa_supplicant \
     -Dnl80211 -iwlan0 -puse_p2p_group_interface=1 -c/data/misc/wifi/wpa_supplicant.conf -e/data/misc/wifi/entropy.bin
@@ -157,18 +164,18 @@ service iprenew_wlan0 /system/bin/dhcpcd -n
 # create virtual SD card at /mnt/sdcard, based on the /data/media directory
 # deamon will drop to user/group system/media_rw after initializing
 # underlying files in /data/media wil be created with user and group media_rw (1023)
-#service sdcard /system/bin/sdcard /data/media 1023 1023
-#    class late_start
+    service sdcard /system/bin/sdcard /data/media /mnt/shell/emulated 1023 1023
+    class late_start
 
 #BCM
-service hciattach /system/bin/brcm_patchram_plus --enable_hci \
-    --baudrate 921600 --patchram /system/etc/firmware/bcm4329.hcd --tosleep 50000 \
-    --i2s=1,1,0,1 --enable_lpm /dev/ttyHS2
-    class main
-    user root
-    group system bluetooth net_bt_admin misc
-    oneshot
-    disabled
+#service hciattach /system/bin/brcm_patchram_plus --enable_hci \
+#    --baudrate 921600 --patchram /system/etc/firmware/bcm4329.hcd --tosleep 50000 \
+#    --i2s=1,1,0,1 --enable_lpm /dev/ttyHS2
+#    class main
+#    user root
+#    group system bluetooth net_bt_admin misc
+#    oneshot
+#    disabled
 
 #service hciattach /system/bin/brcm_patchram_plus --enable_hci \
 #    --baudrate 2700000 --patchram /system/lib/hw/wlan/bcm4329.hcd --pcm_role slave \
@@ -247,3 +254,14 @@ on device-removed-/dev/ttyUSB3
 on property:init.svc.bootanim=stopped
     start wwlanselect
 
+# Postboot service
+service adam_postboot /system/bin/sh /system/etc/adam_postboot.sh
+    user root
+    oneshot
+
+on property:init.svc.bootanim=stopped
+    start adam_postboot
+    class_start postbootinit
+
+on property:init.svc.vold=running
+    start sdcard
