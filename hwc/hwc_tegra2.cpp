@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2011 The Android Open Source Project
- * Copyright (C) 2012 Eduardo Jos  Tagle <ejtagle@tutopia.com>
+ * Copyright (C) 2012 Eduardo Jos. Tagle <ejtagle@tutopia.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ static hwc_module_t* get_hwc(void)
 	if (!orghwc) {
 		void* handle;
 		ALOGI("Resolving original HWC module...");
-		
+
 		handle = dlopen("/system/lib/hw/hwcomposer.tegra_v0.so",RTLD_LAZY);
 		if(!handle) {
 			ALOGE("Unable to load original hwc module");
@@ -72,7 +72,7 @@ static hwc_module_t* get_hwc(void)
 		}
 		ALOGI("Loaded the original HWC module");
 	}
-	
+
 	return orghwc;
 }
 
@@ -82,16 +82,20 @@ struct tegra2_hwc_composer_device_1_t {
 	const hwc_procs_t *procs;
     pthread_t vsync_thread;
 	volatile bool vsync_running;
-	
+
 	unsigned long long time_between_frames_ns;// ns 
-	bool emulated_vsync;
-	
+	bool enabled_vsync;
+
+	// NVidia implementation
+	int nvhost_fd;		
+	unsigned int vblank_syncpt_id;
+
 	// Buffer to do translations to speed them up
 	void* prepare_xlatebuf;
 	int prepare_xlatebufsz;
 	void* set_xlatebuf;
 	int set_xlatebufsz;
-	
+
 }; 
 
 static void copy_layer1_to_layer(hwc_layer_t* dst,hwc_layer_1_t* src)
@@ -145,16 +149,16 @@ static int tegra2_set(struct hwc_composer_device_1 *dev,
         return 0;
 
     tegra2_hwc_composer_device_1_t *pdev = (tegra2_hwc_composer_device_1_t *)dev;
-	
+
     hwc_display_contents_1_t *contents = displays[0];
     if (!contents)
 		return 0;
-		
+
 	if (!contents->dpy || !contents->sur)
         return 0;
 
 	int reqsz = sizeof (hwc_layer_list_t) + sizeof(hwc_layer_t) * contents->numHwLayers;
-	
+
 	// Make sure we have enough space on the translation buffer
 	if (pdev->set_xlatebufsz < reqsz) {
 		if (!pdev->set_xlatebuf) {
@@ -167,22 +171,22 @@ static int tegra2_set(struct hwc_composer_device_1 *dev,
     hwc_layer_list_t* lst = (hwc_layer_list_t*) pdev->set_xlatebuf;
 
 	copy_display_contents_1_to_layer_list(lst,contents);
-	
+
 	//Wait until all buffers are available
 	unsigned int d;
 	for (d = 0; d < contents->numHwLayers; d++) {
-	
+
 		// Release handles we own...
 		if (contents->hwLayers[d].acquireFenceFd >= 0)
 			close(contents->hwLayers[d].acquireFenceFd);
 		contents->hwLayers[d].acquireFenceFd = -1;
-		
+
 		// And let surfaceFlinger read inmediately...
 		contents->hwLayers[d].releaseFenceFd = -1;
 	}
 
 	int ret = pdev->org->set(pdev->org, contents->dpy, contents->sur, lst);
-	
+
 	copy_layer_list_to_display_contents_1(contents,lst);
 
     return ret;
@@ -200,7 +204,7 @@ static int tegra2_prepare(hwc_composer_device_1_t *dev,
 	hwc_display_contents_1_t *contents = displays[0];
 	if (!contents) 
 		return 0;
-		
+
 	ALOGV("preparing %u layers", contents->numHwLayers);
 
 	int reqsz = sizeof (hwc_layer_list_t) + sizeof(hwc_layer_t) * contents->numHwLayers;
@@ -214,25 +218,26 @@ static int tegra2_prepare(hwc_composer_device_1_t *dev,
 		pdev->prepare_xlatebufsz = reqsz;
 	}	
     hwc_layer_list_t* lst = (hwc_layer_list_t*) pdev->prepare_xlatebuf;
-	
+
 	copy_display_contents_1_to_layer_list(lst,contents);
 
 	int ret = pdev->org->prepare(pdev->org, lst);
 
 	copy_layer_list_to_display_contents_1(contents,lst);
-	
+
 	return ret;
 }
 
-static void *tegra2_hwc_vsync_thread(void *data)
+/* VSync thread emulator */
+static void *tegra2_hwc_emulated_vsync_thread(void *data)
 {
      struct tegra2_hwc_composer_device_1_t *pdev =
             (struct tegra2_hwc_composer_device_1_t *) data;
 
-	ALOGD("VSYNC thread started");
-	
+	ALOGD("VSYNC thread emulator started");
+
     setpriority(PRIO_PROCESS, 0, HAL_PRIORITY_URGENT_DISPLAY);
-	
+
 	// Store the time of the start of this thread as an initial timestamp
 	struct timespec nexttm;
 	clock_gettime(CLOCK_MONOTONIC,&nexttm);
@@ -243,56 +248,186 @@ static void *tegra2_hwc_vsync_thread(void *data)
 
 		// Estimate time of next emulated VSYNC
 		nexttm_ns += pdev->time_between_frames_ns;
-		
+
 		// get current time
 		struct timespec currtm;
 		clock_gettime(CLOCK_MONOTONIC,&currtm);
-		
+
 		// Calculate the delay for that next time
 		signed long long deltatm_ns 
 			= nexttm_ns - ((currtm.tv_sec) * 1000000000LL + (currtm.tv_nsec));
-		
+
 		// If we lost lock on emulated VSYNC...
 		if (deltatm_ns < 0 || deltatm_ns > (signed long long) pdev->time_between_frames_ns) {
 			// Restart emulation
-			
+
 			// Store the current time as the time of the start of this thread	
 			clock_gettime(CLOCK_MONOTONIC,&nexttm);
 			nexttm_ns = (nexttm.tv_sec) * 1000000000LL + (nexttm.tv_nsec);
-	
+
 			deltatm_ns = 0;
 		}
-		
+
 		// If something to wait ... wait!
 		if (deltatm_ns > 0) {	
-		
+
 			struct timespec ts;
 			ts.tv_sec = 0;
 			ts.tv_nsec = deltatm_ns;
-			
+
 			do {
 				err = nanosleep (&ts, &ts);
 			} while (err < 0 && errno == EINTR); 
 		}
-	
+
 		// Do the VSYNC call
-		if (pdev->emulated_vsync && pdev->procs) {
+		if (pdev->enabled_vsync && pdev->procs) {
 
 			// Get current time in exactly the same timebase as Choreographer
 			struct timespec now;
 			clock_gettime(CLOCK_MONOTONIC,&now);
-			
+
 			unsigned long long now_ns = (now.tv_sec) * 1000000000ULL + (now.tv_nsec);
-			
+
 			pdev->procs->vsync(pdev->procs, 0, now_ns);
 		}
 
     } while (pdev->vsync_running);
 
-	ALOGD("VSYNC thread ended");
-	
+	ALOGD("VSYNC thread emulator ended");
+
     return NULL;
 }
+
+/* -- NVidia Tegra2/3 specific interfaces to sync to VBlanks */
+
+#include <linux/nvhost_ioctl.h> /* nvidia specific headers from the linux kernel headers*/
+#include <video/tegra_dc_ext.h> /* nvidia specific headers from the linux kernel headers */
+
+/* ... taken from nvidia linux kernel drivers ... */
+#define NVSYNCPT_VBLANK0		     (26)
+#define NVSYNCPT_VBLANK1		     (27) 
+
+
+static int dc0_get_vblank_syncpt(void)
+{
+	int dc0_fd = open("/dev/tegra_dc0", O_RDWR);
+	if (dc0_fd < 0) {
+		ALOGE("Failed to open NVidia DC0 - Assuming default VBLANK0 syncpoint id");
+		return NVSYNCPT_VBLANK0;
+	}
+
+	int syncpt = 0;
+	if (ioctl(dc0_fd, TEGRA_DC_EXT_GET_VBLANK_SYNCPT, &syncpt) < 0) {
+		ALOGE("Failed to get VBLANK0 syncpoint id - Assuming default VBLANK0 syncpoint id");
+		close(dc0_fd);
+		return NVSYNCPT_VBLANK0;
+	}
+
+	close(dc0_fd);
+	ALOGD("Got VBLANK0 syncpoint: 0x%08x", syncpt);
+
+	return syncpt;
+}
+
+static int nvhost_open(void)
+{
+	return open("/dev/nvhost-ctrl", O_RDWR);
+}
+
+static void nvhost_close(int ctrl_fd)
+{
+	if (ctrl_fd >= 0) {
+		close(ctrl_fd);
+	}
+}
+
+#if 0
+static int nvhost_get_version(int ctrl_fd)
+{
+	struct nvhost_get_param_args gpa;
+	if (ioctl(ctrl_fd, NVHOST_IOCTL_CTRL_GET_VERSION, &gpa) < 0)
+		return NVHOST_SUBMIT_VERSION_V0;
+	return gpa.value;
+} 
+#endif
+
+static int nvhost_syncpt_read(int ctrl_fd, int id, unsigned int *syncpt)
+{
+	struct nvhost_ctrl_syncpt_read_args ra;
+	ra.id = id;
+	if (ioctl(ctrl_fd, NVHOST_IOCTL_CTRL_SYNCPT_READ, &ra) < 0)
+		return -1;
+	*syncpt = ra.value;
+	return 0;
+}
+
+static int nvhost_syncpt_wait(int ctrl_fd, int id, int thresh, unsigned int timeout)
+{
+	struct nvhost_ctrl_syncpt_wait_args wa;
+	wa.id = id;
+	wa.thresh = thresh;
+	wa.timeout = timeout;
+	return ioctl(ctrl_fd, NVHOST_IOCTL_CTRL_SYNCPT_WAIT, &wa);
+}  
+
+/* Wait VSync using NVidia SyncPoints */
+static int tegra2_wait_vsync(struct tegra2_hwc_composer_device_1_t *pdev)
+{
+	unsigned int syncpt = 0;
+
+	/* get syncpt threshold */
+	if (nvhost_syncpt_read(pdev->nvhost_fd, pdev->vblank_syncpt_id, &syncpt)) {
+		ALOGE("Failed to read VBLANK syncpoint value!");
+		return -1;
+	} 
+
+	/* wait for the next value */
+	if (nvhost_syncpt_wait(pdev->nvhost_fd, pdev->vblank_syncpt_id, syncpt + 1, NVHOST_NO_TIMEOUT) < 0) {
+		ALOGE("Failed to wait for VBLANK!");
+		return -1;
+	} 
+
+	/* Done waiting ! */
+	return 0;
+}
+
+/* VSync thread using Nvidia syncpoint waits */
+static void *tegra2_hwc_nv_vsync_thread(void *data)
+{
+     struct tegra2_hwc_composer_device_1_t *pdev =
+            (struct tegra2_hwc_composer_device_1_t *) data;
+
+	ALOGD("NVidia VSYNC thread started");
+
+    setpriority(PRIO_PROCESS, 0, HAL_PRIORITY_URGENT_DISPLAY);
+
+    do {	
+		int err;
+
+		// Wait for the next vsync
+		tegra2_wait_vsync(pdev);
+
+		// Do the VSYNC call
+		if (pdev->enabled_vsync && pdev->procs) {
+
+			// Get current time in exactly the same timebase as Choreographer
+			struct timespec now;
+			clock_gettime(CLOCK_MONOTONIC,&now);
+
+			unsigned long long now_ns = (now.tv_sec) * 1000000000ULL + (now.tv_nsec);
+
+			pdev->procs->vsync(pdev->procs, 0, now_ns);
+		}
+
+    } while (pdev->vsync_running);
+
+	ALOGD("NVidia VSYNC thread ended");
+
+    return NULL;
+}
+
+
 
 static int tegra2_eventControl(struct hwc_composer_device_1 *dev, int dpy,
         int event, int enabled)
@@ -305,14 +440,14 @@ static int tegra2_eventControl(struct hwc_composer_device_1 *dev, int dpy,
 			: pdev->org->methods->eventControl(pdev->org,event,enabled);
 
 	if (ret != 0 && event == HWC_EVENT_VSYNC) {
-		ALOGD("Emulated VSYNC ints are %s", enabled ? "On" : "Off" );
-		
-		pdev->emulated_vsync = (enabled) ? true : false;
+		// ALOGD("Emulated VSYNC ints are %s", enabled ? "On" : "Off" );
+
+		pdev->enabled_vsync = (enabled) ? true : false;
 		ret = 0;
 	}
 	return ret;
 }
-	
+
 static int tegra2_blank(struct hwc_composer_device_1 *dev, int disp, int blank)
 {
     struct tegra2_hwc_composer_device_1_t *pdev =
@@ -329,7 +464,7 @@ static int tegra2_query(struct hwc_composer_device_1* dev, int what, int *value)
 	int ret =  (!pdev->org->query)
 		? -EINVAL
 		: pdev->org->query(pdev->org,what,value);
-	
+
 	return ret;
 } 
 
@@ -350,7 +485,7 @@ static void tegra2_dump(hwc_composer_device_1* dev, char *buff, int buff_len)
 
     struct tegra2_hwc_composer_device_1_t *pdev =
             (struct tegra2_hwc_composer_device_1_t *)dev;
-	
+
 	if (pdev->org->dump) 
 		pdev->org->dump(pdev->org,buff,buff_len);
 	else
@@ -361,16 +496,22 @@ static int tegra2_close(hw_device_t *device)
 {
     struct tegra2_hwc_composer_device_1_t *pdev =
             (struct tegra2_hwc_composer_device_1_t *)device;
-	
-	// Stop VSYNC thread emulation, if running
+
+	// Stop VSYNC thread, if running
 	if (pdev->vsync_running) {
 		void * dummy;
 		pdev->vsync_running = false;
 		pthread_join(pdev->vsync_thread, &dummy);
 	}
-	
+
+	// Close NVidia host handle, if being used...
+	if (pdev->nvhost_fd >= 0) {
+		nvhost_close(pdev->nvhost_fd);
+		pdev->nvhost_fd = -1;
+	}
+
 	int ret = pdev->org->common.close( (hw_device_t *) pdev->org );
-	
+
 	if (pdev->prepare_xlatebuf)
 		free(pdev->prepare_xlatebuf);
 	if (pdev->set_xlatebuf)
@@ -387,10 +528,10 @@ static int tegra2_open(const struct hw_module_t *module, const char *name,
  	hwc_module_t* hwc = get_hwc();
 	if (!hwc)
 		return -ENOSYS;
-	
+
 	struct tegra2_hwc_composer_device_1_t *dev
 		= (struct tegra2_hwc_composer_device_1_t *)calloc(1,sizeof(*dev));
-	
+
 	ret = hwc->common.methods->open(&hwc->common,name,(struct hw_device_t **)&(dev->org));
 	if (ret < 0) {
 		ALOGE("original open call failed");
@@ -414,17 +555,17 @@ static int tegra2_open(const struct hw_module_t *module, const char *name,
 
 	// Try to query the original hw composer for the time between frames...
 	int value = 0;
-	
+
 	if (dev->org->query && dev->org->query(dev->org,HWC_VSYNC_PERIOD,&value) == 0 && value != 0) {
 		ALOGD("Got time between frames from original hwcomposer: time in ns = %d",value);
-		
+
 	} else {
 		// Try to get the time from the framebuffer device...
 
 		int fd = -1;
 		fd = open("/dev/graphics/fb0", O_RDWR);
 		if (fd >= 0) {
-			
+
 			struct fb_var_screeninfo info;
 			if (ioctl(fd, FBIOGET_VSCREENINFO, &info) != -1) {
 
@@ -446,13 +587,32 @@ static int tegra2_open(const struct hw_module_t *module, const char *name,
 	}	
 	dev->time_between_frames_ns = value;
    
-	dev->vsync_running = true;
-	if (pthread_create(&dev->vsync_thread, NULL, tegra2_hwc_vsync_thread, dev)) {
-		ALOGE("Unable to start VSYNC emulation thread");
+	// Find out if we can use the NVidia VBLANK0 syncpoint to get VSYNC 
+	//  interrupts, or we must completely emulate them...
+	dev->nvhost_fd = nvhost_open();
+	if (dev->nvhost_fd >= 0) { 
+		ALOGD("Using NVidia VBLANK0 syncpoint as VSYNC");
+
+		// Get the syncpoint id for VBLANK0
+		dev->vblank_syncpt_id = dc0_get_vblank_syncpt();
+
+		dev->vsync_running = true;
+		if (pthread_create(&dev->vsync_thread, NULL, tegra2_hwc_nv_vsync_thread, dev)) {
+			ALOGE("Unable to start VSYNC thread");
+		}
+
+	} else {
+
+		ALOGD("Emulating VSYNC interrupts using nanosleep and kernel timers");
+
+		dev->vsync_running = true;
+		if (pthread_create(&dev->vsync_thread, NULL, tegra2_hwc_emulated_vsync_thread, dev)) {
+			ALOGE("Unable to start VSYNC emulation thread");
+		}
 	}
    
     *device = &dev->base.common;
-	
+
     return 0;
 } 
 
@@ -466,11 +626,8 @@ hwc_module_t HAL_MODULE_INFO_SYM = {
         module_api_version: HWC_MODULE_API_VERSION_0_1,
         hal_api_version: HARDWARE_HAL_API_VERSION,
         id: HWC_HARDWARE_MODULE_ID,
-        name: "NVIDIA Tegra2 HWC v0 Module Wrapper",
-        author: "ejtagle",
+        name: "NVIDIA Tegra2 HWC v0 Module Wrapper v0.2",
+        author: "ejtagle@tutopia.com",
         methods: &tegra2_hwc_module_methods,
     }
 }; 
-
-
-
