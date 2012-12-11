@@ -161,6 +161,16 @@ service iprenew_wlan0 /system/bin/dhcpcd -n
     disabled
     oneshot
 
+service iprenew_p2p /system/bin/dhcpcd -n
+    class main
+    disabled
+    oneshot
+
+service iprenew_eth0 /system/bin/dhcpcd -n
+    class main
+    disabled
+    oneshot
+
 # create virtual SD card at /mnt/sdcard, based on the /data/media directory
 # deamon will drop to user/group system/media_rw after initializing
 # underlying files in /data/media wil be created with user and group media_rw (1023)
@@ -176,43 +186,6 @@ service iprenew_wlan0 /system/bin/dhcpcd -n
 #    group system bluetooth net_bt_admin misc
 #    oneshot
 #    disabled
-
-#service hciattach /system/bin/brcm_patchram_plus --enable_hci \
-#    --baudrate 2700000 --patchram /system/lib/hw/wlan/bcm4329.hcd --pcm_role slave \
-#    --enable_lpm /dev/ttyHS2
-#    class main
-#    user bluetooth
-#    group bluetooth net_bt_admin
-#    disabled
-#service hciattach /system/bin/nv_hciattach -n -t 100 -s 115200 ttyHS2 bcm4329 921600 flowi
-#	user bluetooth
-#	group system bluetooth net_bt_admin misc
-#	oneshot
-#	disabled
-
-# Start GPS daemon
-#service gps-daemon /system/bin/glgps_nvidiaTegra2android -c /system/etc/gps/gpsconfig.xml
-#    class late_start
-#    user root
-#    group root
-
-#Prepare TF service
-#service tf_daemon /system/bin/tf_daemon -storageDir /data/tf
-#    disabled
-#    class main
-#    user root
-#    group shell
-#    oneshot
-
-#Create data directory and start service
-#on property:tf.enable=y
-#    mkdir /data/tf
-#    start tf_daemon
-
-# cmd_server service
-#service cmd_server /system/bin/cmd_server_daemon
-#    class late_start
-#    user root
 
 # Enable tcpdump-service
 #service netdump-service /system/xbin/tcpdump -i any -C 5 -p -s 0 -w /sdcard/netdump.cap
