@@ -119,7 +119,7 @@ PRODUCT_PACKAGES += \
 	lights.harmony \
 	gps.harmony \
 	camera.tegra \
-	hwcomposer.tegra
+	#hwcomposer.tegra
         
 # These are the hardware-specific feature permissions
 PRODUCT_COPY_FILES += \
