@@ -311,7 +311,7 @@ static void *tegra2_hwc_emulated_vsync_thread(void *data)
 
 static int dc0_get_vblank_syncpt(void)
 {
-	int dc0_fd = open("/dev/tegra_dc0", O_RDWR);
+	int dc0_fd = open("/dev/tegra_dc_0", O_RDWR);
 	if (dc0_fd < 0) {
 		ALOGE("Failed to open NVidia DC0 - Assuming default VBLANK0 syncpoint id");
 		return NVSYNCPT_VBLANK0;
