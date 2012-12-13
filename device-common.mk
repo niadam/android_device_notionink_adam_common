@@ -105,6 +105,9 @@ PRODUCT_PACKAGES += \
 	lights.harmony \
 	gps.harmony \
 	camera.tegra
+
+PRODUCT_PACKAGES += \
+	librs_jni
         
 # These are the hardware-specific feature permissions
 PRODUCT_COPY_FILES += \
@@ -143,9 +146,13 @@ PRODUCT_TAGS += dalvik.gc.type-precise
 PRODUCT_PACKAGES += \
 	com.android.future.usb.accessory 
 
-# Filesystem management tools
+# Filesystem management tools and others
 PRODUCT_PACKAGES += \
-	setup_fs
+	setup_fs \
+        make_ext4fs \
+        l2ping \
+        hcitool \
+        bttest
 	
 $(call inherit-product-if-exists, hardware/broadcom/wlan/bcmdhd/firmware/bcm4329/device-bcm.mk)
 
