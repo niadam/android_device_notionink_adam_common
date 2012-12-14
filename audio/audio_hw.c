@@ -16,7 +16,7 @@
  */
 
 #define LOG_TAG "audio_hw_primary"
-//#define LOG_NDEBUG 0
+#define LOG_NDEBUG 0
 
 #include <errno.h>
 #include <pthread.h>
@@ -144,23 +144,35 @@ struct route_setting defaults[] = {
     /* general */
     {
         .ctl_name = MIXER_PCM_PLAYBACK_VOLUME,
-        .intval = 20,
+        .intval = PERC_TO_PCM_VOLUME(1.0),
     },
     {
 	.ctl_name = MIXER_PCM_CAPTURE_VOLUME,
-	.intval = PERC_TO_CAPTURE_VOLUME(1),
+	.intval = 18,
     },
     {
         .ctl_name = MIXER_HEADSET_PLAYBACK_VOLUME,
-        .intval = PERC_TO_HEADSET_VOLUME(1),
+        .intval = PERC_TO_HEADSET_VOLUME(1.0),
     },
     {
         .ctl_name = MIXER_SPEAKER_PLAYBACK_VOLUME,
-	.intval = 20,
+	.intval = PERC_TO_SPEAKER_VOLUME(0.6),
     },
     {
         .ctl_name = MIXER_MIC_CAPTURE_VOLUME,
-        .intval = PERC_TO_MIC_VOLUME(1),
+        .intval = PERC_TO_CAPTURE_VOLUME(1.0),
+    },
+    {
+        .ctl_name = "Mic2 Capture Volume",
+        .intval = 31,
+    },
+    {
+        .ctl_name = "Mic 1 Boost Volume",
+        .intval = 2,
+    },
+    {
+        .ctl_name = "Mic 2 Boost Volume",
+        .intval = 2,
     },
     {
         .ctl_name = MIXER_HEADSET_PLAYBACK_SWITCH,
