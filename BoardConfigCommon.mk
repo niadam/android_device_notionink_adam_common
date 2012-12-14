@@ -98,5 +98,5 @@ BOARD_USES_SECURE_SERVICES := true
 
 BOARD_HAVE_MAGNETIC_SENSOR := true
 
-# skip ota device assert
-TARGET_OTA_ASSERT_SKIP := true
+# ota device asserts
+TARGET_OTA_ASSERT_DEVICE := adam,adam_3g,adam_recovery
