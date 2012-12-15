@@ -967,8 +967,10 @@ static ssize_t in_read(struct audio_stream_in *stream, void* buffer,
      * Instead of writing zeroes here, we could trust the hardware
      * to always provide zeroes when muted.
      */
-    if (ret == 0 && adev->mic_mute)
-        memset(buffer, 0, bytes);
+    if (ret == 0 && adev->mic_mute) {
+	    ALOGV("in_read: writing zeroes");
+	    memset(buffer, 0, bytes);
+    }
 
 exit:
     if (ret < 0)
@@ -1134,6 +1136,8 @@ static int adev_set_mode(struct audio_hw_device *dev, audio_mode_t mode)
 static int adev_set_mic_mute(struct audio_hw_device *dev, bool state)
 {
     struct audio_device *adev = (struct audio_device *)dev;
+
+    ALOGV("adev_set_mic_mute+");
 
     adev->mic_mute = state;
 
