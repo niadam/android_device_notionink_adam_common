@@ -150,7 +150,8 @@ service iprenew_bnep0 /system/bin/dhcpcd -n
 
 #BCM
 service hciattach /system/bin/brcm_patchram_plus --enable_hci \
-    --baudrate 921600 --patchram /system/etc/firmware/bcm4329.hcd --tosleep 50000 \
+    --baudrate 921600 --use_baudrate_for_download \
+    --patchram /system/etc/firmware/bcm4329.hcd --tosleep 50000 \
     --i2s=1,1,0,1 --scopcm 0,2,0,0,0,0,0,0,0,0 --enable_lpm /dev/ttyHS2
     class main
     user root
