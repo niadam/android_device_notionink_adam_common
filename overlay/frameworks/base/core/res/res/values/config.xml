@@ -133,7 +133,7 @@
         <item>"wlan0"</item>
     </string-array>  
     <string-array translatable="false" name="config_tether_bluetooth_regexs">
-        <item>"bt-pan"</item>
+        <item>"bnep\\d"</item>
     </string-array>
 
    <integer-array translatable="false" name="config_tether_upstream_types">
