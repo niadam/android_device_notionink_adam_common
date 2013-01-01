@@ -16,9 +16,7 @@
 
 # This variable is set first, so it can be overridden
 # by BoardConfigVendor.mk
-BOARD_USES_GENERIC_AUDIO := false
-BOARD_USES_ALSA_AUDIO := false
-
+BOARD_USES_GENERIC_AUDIO := true
 USE_CAMERA_STUB := false
 
 BOARD_USES_AUDIO_LEGACY := false
