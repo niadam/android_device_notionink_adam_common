@@ -45,9 +45,9 @@ PRODUCT_COPY_FILES := \
     device/notionink/adam_common/files/nvram.txt:system/etc/wifi/nvram.txt \
 
 # Modules
-PRODUCT_COPY_FILES += \
-    device/notionink/adam_common/modules/scsi_wait_scan.ko:system/lib/modules/scsi_wait_scan.ko \
-    device/notionink/adam_common/modules/tun.ko:system/lib/modules/tun.ko
+#PRODUCT_COPY_FILES += \
+#    device/notionink/adam_common/modules/scsi_wait_scan.ko:system/lib/modules/scsi_wait_scan.ko \
+#    device/notionink/adam_common/modules/tun.ko:system/lib/modules/tun.ko
 
 # Bluetooth
 PRODUCT_COPY_FILES += \
