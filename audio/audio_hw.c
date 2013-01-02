@@ -152,7 +152,7 @@ struct route_setting defaults[] = {
     },
     {
 	.ctl_name = MIXER_PCM_CAPTURE_VOLUME,
-	.intval = PERC_TO_CAPTURE_VOLUME(1.0),
+	.intval = 18,
     },
     {
         .ctl_name = MIXER_HEADSET_PLAYBACK_VOLUME,
