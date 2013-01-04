@@ -148,7 +148,7 @@ struct route_setting defaults[] = {
     },
     {
 	.ctl_name = MIXER_PCM_CAPTURE_VOLUME,
-	.intval = 18,
+	.intval = 20,
     },
     {
         .ctl_name = MIXER_HEADSET_PLAYBACK_VOLUME,
@@ -184,23 +184,23 @@ struct route_setting defaults[] = {
     },
     {
         .ctl_name = MIXER_SPEAKER_PLAYBACK_SWITCH,
-        .intval = 1,
+        .intval = 0,
     },
     {
         .ctl_name = INTERNAL_SPEAKER_SWITCH,
-        .intval = 1,
+        .intval = 0,
     },
     {
         .ctl_name = MIXER_MIC_LEFT_CAPTURE_SWITCH,
-        .intval = 1,
+        .intval = 0,
     },
     {
         .ctl_name = MIXER_MIC_RIGHT_CAPTURE_SWITCH,
-        .intval = 1,
+        .intval = 0,
     },
     {
         .ctl_name = INTERNAL_MIC_SWITCH,
-        .intval = 1,
+        .intval = 0,
     },
     {
         .ctl_name = MIXER_HPL_OUTMUX,
@@ -296,6 +296,44 @@ struct route_setting speaker_headphone_route[] = {
     }
 };
 
+/* Mic on route */
+struct route_setting mic_on_route[] = {
+    {
+        .ctl_name = INTERNAL_MIC_SWITCH,
+        .intval = 1,
+    },
+    {
+        .ctl_name = MIXER_MIC_LEFT_CAPTURE_SWITCH,
+        .intval = 1,
+    },
+    {
+        .ctl_name = MIXER_MIC_RIGHT_CAPTURE_SWITCH,
+        .intval = 1,
+    },
+    {
+        .ctl_name = NULL,
+    }
+};
+
+/* Mic off route */
+struct route_setting mic_off_route[] = {
+    {
+        .ctl_name = INTERNAL_MIC_SWITCH,
+        .intval = 0,
+    },
+    {
+        .ctl_name = MIXER_MIC_LEFT_CAPTURE_SWITCH,
+        .intval = 0,
+    },
+    {
+        .ctl_name = MIXER_MIC_RIGHT_CAPTURE_SWITCH,
+        .intval = 0,
+    },
+    {
+        .ctl_name = NULL,
+    }
+};
+
 /* No out route */
 struct route_setting no_out_route[] = {
     {
@@ -382,6 +420,8 @@ struct audio_device {
 
     bool screen_off;
 
+    bool isRecording;
+
     struct stream_out *active_out;
     struct stream_in *active_in;
 };
@@ -451,6 +491,16 @@ static void select_devices(struct audio_device *adev)
 			break;
 	}
 
+	/* Turn on/off Mic routes */
+	if(adev->isRecording) {
+		ALOGD("Mic activate");
+		set_route_by_array(adev->mixer, mic_on_route, 1);
+	} else {
+                ALOGD("Mic deactivate");
+                set_route_by_array(adev->mixer, mic_off_route, 1);
+        }
+
+
 	ALOGD("Headphone out:%c, Speaker out:%c, HDMI out:%c, BT out:%c\n",
 		(adev->devices & AUDIO_DEVICE_OUT_WIRED_HEADPHONE) ? 'Y' : 'N',
 		(adev->devices & AUDIO_DEVICE_OUT_SPEAKER) ? 'Y' : 'N',
@@ -490,6 +540,10 @@ static void do_in_standby(struct stream_in *in)
 		
         adev->active_in = NULL;
 
+	adev->isRecording = false;
+	
+	select_devices(adev);
+
         in->standby = true;
     }
 }
@@ -526,6 +580,8 @@ static int start_output_stream(struct stream_out *out)
     }
 
 	adev->active_out = out;
+
+	select_devices(adev);
 
     return 0;
 }
@@ -567,6 +623,11 @@ static int start_input_stream(struct stream_in *in)
 	in->frames_to_mute = FRAMES_MUTED_AT_CAPTURE_START;
 	
 	adev->active_in = in;
+
+	adev->isRecording = true;
+
+	select_devices(adev);
+
     return 0;
 }
 
