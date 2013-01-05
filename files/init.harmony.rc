@@ -124,6 +124,11 @@ service dhcpcd_eth0 /system/bin/dhcpcd -ABDKL -f/system/etc/dhcpcd/dhcpcd.conf
     disabled
     oneshot
 
+service dhcpcd_usb0 /system/bin/dhcpcd -ABDKL -f/system/etc/dhcpcd/dhcpcd.conf
+    class main
+    disabled
+    oneshot
+
 service dhcpcd_p2p /system/bin/dhcpcd -aABKL
     class main
     disabled
@@ -131,19 +136,33 @@ service dhcpcd_p2p /system/bin/dhcpcd -aABKL
 
 # bluetooth
 service dhcpcd_bnep0 /system/bin/dhcpcd -ABKL
+    class main
     disabled
     oneshot
 
 service iprenew_wlan0 /system/bin/dhcpcd -n
+    class main
+    disabled
+    oneshot
+
+service iprenew_eth0 /system/bin/dhcpcd -n
+    class main
+    disabled
+    oneshot
+
+service iprenew_usb0 /system/bin/dhcpcd -n
+    class main
     disabled
     oneshot
 
 service iprenew_p2p /system/bin/dhcpcd -n
+    class main
     disabled
     oneshot
 
 # bluetooth
 service iprenew_bnep0 /system/bin/dhcpcd -n
+    class main
     disabled
     oneshot
 
