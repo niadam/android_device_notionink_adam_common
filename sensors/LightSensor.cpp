@@ -80,7 +80,7 @@ int LightSensor::readEvents(sensors_event_t* data, int count)
     unsigned int value;
     readIntFromFile(LIGHTING_DEVICE_NAME, &value);
     mPendingEvent.timestamp = getTimestamp();
-    mPendingEvent.light = (float)value;
+    mPendingEvent.light = (float)value * 50;
     *data = mPendingEvent;
     return 1;
 }
