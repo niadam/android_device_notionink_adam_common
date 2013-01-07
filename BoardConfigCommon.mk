@@ -38,6 +38,7 @@ BOARD_SYSTEMIMAGE_PARTITION_SIZE := 0x19000000
 BOARD_USERDATAIMAGE_PARTITION_SIZE := 0x105c0000
 
 # platform
+TARGET_ARCH := arm
 TARGET_NO_RADIOIMAGE := true
 TARGET_BOARD_PLATFORM := tegra
 TARGET_BOOTLOADER_BOARD_NAME := harmony
@@ -80,11 +81,14 @@ WIFI_DRIVER_FW_PATH_AP      := "/system/vendor/firmware/fw_bcmdhd_apsta.bin"
 # bluetooth
 BOARD_HAVE_BLUETOOTH := true
 BOARD_HAVE_BLUETOOTH_BCM := true
+BOARD_BLUEDROID_VENDOR_CONF := device/notionink/adam_common/bluetooth/libbt_vndcfg.txt
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR ?= device/notionink/adam_common/bluetooth
 
 # graphics
 BOARD_USES_OVERLAY := true
 USE_OPENGL_RENDERER := true
 BOARD_EGL_CFG := device/notionink/adam_common/files/egl.cfg
+BOARD_EGL_NEEDS_LEGACY_FB := true
 
 #TARGET_BOARD_INFO_FILE := device/notionink/adam_common/board-info.txt
  

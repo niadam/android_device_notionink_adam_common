@@ -21,7 +21,7 @@
      for different hardware and product builds. -->
 <resources>
     <!-- Set to true if separate software navigation bar is required on this device. -->  
-    <bool name="config_showNavigationBar">false</bool>
+    <bool name="config_showNavigationBar">true</bool>
 
     <bool name="config_batterySdCardAccessibility">true</bool>
 
@@ -145,12 +145,6 @@
          The default represents a dual-mode smartphone -->
     <string translatable="false" name="config_wifi_p2p_device_type">1-0050F204-1</string>
 	
-    <!-- Package name providing network location support. -->
-    <string name="config_networkLocationProviderPackageName" translatable="false">com.google.android.location</string>
-
-    <!-- Package name providing geocoder API support. -->
-    <string name="config_geocodeProviderPackageName" translatable="false">com.google.android.location</string>
-
     <!-- List of file paths for USB host busses to exclude from USB host support.
          For example, if the first USB bus on the device is used to communicate
          with the modem or some other restricted hardware, add "/dev/bus/usb/001/"
@@ -201,5 +195,30 @@
             2 - Power off (with confirmation)
     -->
     <integer name="config_longPressOnPowerBehavior">1</integer>
+
+    <!--  Maximum number of supported users -->
+    <integer name="config_multiuserMaximumUsers">8</integer>
+
+    <!-- Boolean indicating if current platform need do one-time bluetooth address
+         re-validation -->
+    <bool name="config_bluetooth_address_validation">true</bool>
+
+    <!-- Package name(s) containing location provider support.
+         These packages can contain services implementing location providers,
+         such as the Geocode Provider, Network Location Provider, and
+         Fused Location Provider. They will each be searched for
+         service components implementing these providers.
+         It is strongly recommended that the packages explicitly named
+         below are on the system image, so that they will not map to
+         a 3rd party application.
+         The location framework also has support for installation
+         of new location providers at run-time. The new package does not
+         have to be explicitly listed here, however it must have a signature
+         that matches the signature of at least one package on this list.
+         -->
+    <string-array name="config_locationProviderPackageNames">
+        <item>com.android.location.fused</item>
+        <item>com.google.android.location</item>
+    </string-array>
 
 </resources>
