@@ -39,7 +39,6 @@ PRODUCT_PACKAGES += \
 	GooglePartnerSetup \
 	GoogleServicesFramework \
 	GoogleTTS \
-	LatinImeDictionaryPack \ 
 	MediaUploader \
 	NetworkLocation \
 	OneTimeInitializer \
@@ -48,6 +47,7 @@ PRODUCT_PACKAGES += \
 	Talk \
 	VoiceSearchStub \
 	YouTube \
+        LatinImeDictionaryPack \
 #	QuickSearchBox \
-	Talkback \
+	Talkback
 
