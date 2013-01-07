@@ -1,5 +1,5 @@
-Here's adam device tree for CM10 common files.
+Here's adam device tree for CM10.1 common files.
 
 Copy to android/device/notionink/adam-common/
 
-Current version beta 3.0
+Current version alpha 1
