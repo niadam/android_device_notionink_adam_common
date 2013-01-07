@@ -24,10 +24,12 @@ PRODUCT_COPY_FILES += \
 	$(call find-copy-subdir-files,*,device/notionink/adam_common/gapps/system/tts,system/tts)	
 #	$(call find-copy-subdir-files,*,device/notionink/adam_common/gapps/system/usr,system/usr)
 
+
 PRODUCT_PACKAGES += \
 	ChromeBookmarksSyncAdapter \
 	GenieWidget \
         GmsCore \
+	Gmail2 \
 	GoogleBackupTransport \
 	GoogleCalendarSyncAdapter \
 	GoogleContactsSyncAdapter \
@@ -37,18 +39,15 @@ PRODUCT_PACKAGES += \
 	GooglePartnerSetup \
 	GoogleServicesFramework \
 	GoogleTTS \
+	LatinImeDictionaryPack \ 
 	MediaUploader \
 	NetworkLocation \
 	OneTimeInitializer \
 	Phonesky \
 	SetupWizard \
 	Talk \
-        Velvet \
 	VoiceSearchStub \
 	YouTube \
-	PlayMusic \
-	Microbes \
 #	QuickSearchBox \
 	Talkback \
-	Thinkfree
 
