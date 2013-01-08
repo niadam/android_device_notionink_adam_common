@@ -145,7 +145,8 @@ PRODUCT_CHARACTERISTICS := tablet
 PRODUCT_TAGS += dalvik.gc.type-precise
 
 PRODUCT_PACKAGES += \
-	com.android.future.usb.accessory 
+	com.android.future.usb.accessory \
+	libnetcmdiface 
 
 # Filesystem management tools and others
 PRODUCT_PACKAGES += \
@@ -153,7 +154,7 @@ PRODUCT_PACKAGES += \
         make_ext4fs \
         l2ping \
         hcitool \
-        bttest
+        bttest 
 	
 $(call inherit-product-if-exists, hardware/broadcom/wlan/bcmdhd/firmware/bcm4329/device-bcm.mk)
 # Firmware
