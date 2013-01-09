@@ -131,7 +131,8 @@ PRODUCT_COPY_FILES += \
 
 
 PRODUCT_PROPERTY_OVERRIDES += \
-	ro.opengles.version=131072
+	ro.opengles.version=131072 \
+	ro.opengles.surface.rgb565=true
 
 #Set default.prop properties for root + mtp
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
