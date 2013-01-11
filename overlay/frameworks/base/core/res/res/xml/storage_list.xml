@@ -41,12 +41,14 @@
 	android:storageDescription="@string/storage_internal"
         android:primary="true"
 	android:emulated="false"
-	android:removable="true"
+	android:removable="false"
+	android:allowMassStorage="true"
 	android:maxFileSize="4096" />
     <storage android:mountPoint="/storage/sdcard2"
 	android:storageDescription="@string/storage_sd_card"
         android:emulated="false"
 	android:removable="true"
+	android:allowMassStorage="true"
 	android:maxFileSize="4096" />
     <storage android:mountPoint="/mnt/usbdrive1"
         android:storageDescription="@string/storage_usb"
