@@ -4,6 +4,6 @@
 # specify MF_CHECK, and must come before any filesystems that do specify MF_CHECK
 
 
-mtd@system	              /system             yaffs2      ro                         wait
-mtd@cache           	      /cache              yaffs2      rw,noatime,nosuid,nodev    wait
-/dev/block/mmcblk0p2          /data               ext4        rw,nosuid,nodev,noatime,user_xattr,acl,barrier=1,journal_async_commit,nodelalloc,data=writeback    wait 
+mtd@system	                                     /system             yaffs2    ro                                                                    wait
+/dev/block/platform/sdhci-tegra.3/by-num/p3          /cache              ext3      noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,errors=panic    wait
+/dev/block/platform/sdhci-tegra.3/by-num/p2          /data               ext4      noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,errors=panic    wait,encryptable=footer

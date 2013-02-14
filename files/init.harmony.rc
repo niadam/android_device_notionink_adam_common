@@ -39,7 +39,6 @@ on fs
     setprop ro.crypto.tmpfs_options size=128m,mode=0771,uid=1000,gid=1000
     setprop ro.crypto.umount_sd false
     setprop ro.crypto.fuse_sdcard true
-    mount ext4 /dev/block/mmcblk0p2 /data wait noatime nosuid nodev
     mount_all /fstab.harmony
 
 on post-fs
