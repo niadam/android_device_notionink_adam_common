@@ -22,8 +22,9 @@ USE_CAMERA_STUB := false
 TARGET_USES_OLD_LIBSENSORS_HAL := false
 
 # Audio
-BOARD_USES_GENERIC_AUDIO := true
+BOARD_USES_GENERIC_AUDIO := false
 BOARD_USES_AUDIO_LEGACY := false
+BOARD_USES_ALSA_AUDIO := false
 
 # Devices asserts
 TARGET_OTA_ASSERT_DEVICE := adam,adam_3g,adam_recovery

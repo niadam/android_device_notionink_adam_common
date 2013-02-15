@@ -1,0 +1,53 @@
+<mixer>
+  <!-- These are the initial mixer settings -->
+  <ctl name="Auxout Playback Switch" value="0" />
+  <ctl name="Int Spk Switch" value="0" />
+  <ctl name="Headphone Playback Switch" value="0" />
+  <ctl name="Headphone Jack Switch" value="0" />
+  <ctl name="HP Mix DAC2HP Playback Switch" value="0" />
+  <ctl name="Speaker Mix DAC2SPK Playback Switch" value="0" />
+  <ctl name="Int Mic Switch" value="0" />
+  <ctl name="Left Capture Mix Mic1 Capture Switch" value="0" />
+  <ctl name="Right Capture Mix Mic1 Capture Switch" value="0" />
+  <ctl name="Left Headphone Mux" value="HP Left Mix" />
+  <ctl name="Right Headphone Mux" value="HP Right Mix" />
+  <ctl name="AuxOut Mux" value="HPOut Mix" />
+  
+  <ctl name="PCM Playback Volume" value="20" />
+  <ctl name="Rec Capture Volume" value="25" />
+  <ctl name="Headphone Playback Volume" value="31" />
+  <ctl name="Auxout Playback Volume" value="20" />
+  <ctl name="Mic1 Capture Volume" value="31" />
+  
+  <path name="speaker">
+    <ctl name="Auxout Playback Switch" value="1" />
+    <ctl name="Int Spk Switch" value="1" />
+    <ctl name="Speaker Mix DAC2SPK Playback Switch" value="1" />
+    <ctl name="Headphone Playback Switch" value="0" />
+    <ctl name="Headphone Jack Switch" value="0" />
+  </path>
+  
+  <path name="headphone">
+    <ctl name="Headphone Playback Switch" value="1" />
+    <ctl name="Headphone Jack Switch" value="1" />
+    <ctl name="HP Mix DAC2HP Playback Switch" value="1" />
+    <ctl name="Auxout Playback Switch" value="0" />
+    <ctl name="Int Spk Switch" value="0" />
+  </path>
+  
+  <path name="hdmi">
+    <ctl name="Auxout Playback Switch" value="0" />
+  </path>
+
+  <path name="mic-on">
+    <ctl name="Int Mic Switch" value="1" />
+    <ctl name="Left Capture Mix Mic1 Capture Switch" value="1" />
+    <ctl name="Right Capture Mix Mic1 Capture Switch" value="1" />
+  </path>
+
+  <path name="mic-off">
+    <ctl name="Int Mic Switch" value="0" />
+    <ctl name="Left Capture Mix Mic1 Capture Switch" value="0" />
+    <ctl name="Right Capture Mix Mic1 Capture Switch" value="0" />
+  </path>
+</mixer>

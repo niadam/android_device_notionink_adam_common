@@ -69,6 +69,10 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
      device/notionink/adam_common/files/media_codecs.xml:system/etc/media_codecs.xml
 
+# Mixer paths
+PRODUCT_COPY_FILES += \
+     device/notionink/adam_common/files/mixer_paths.xml:system/etc/mixer_paths.xml
+
 # Audio policy configuration
 PRODUCT_COPY_FILES += \
      device/notionink/adam_common/files/audio_policy.conf:system/etc/audio_policy.conf
@@ -98,7 +102,10 @@ PRODUCT_PACKAGES += \
         audio.a2dp.default \
 	audio.primary.harmony \
 	audio.usb.default \
-        libaudioutils
+        libaudioutils \
+        tinymix \
+        tinyplay \
+        tinyrec \
 
 # Harmony Hardware
 PRODUCT_PACKAGES += \
