@@ -11,7 +11,6 @@
 ######################
 
 # Configuration of Adam
-dev_mount internal_sd /storage/sdcard1 auto /devices/platform/sdhci-tegra.3/mmc_host/mmc1
-dev_mount microsd /storage/sdcard2 auto /devices/platform/sdhci-tegra.2/mmc_host/mmc2
+dev_mount microsd /storage/sdcard1 auto /devices/platform/sdhci-tegra.2/mmc_host/mmc2
 dev_mount usbdrive1 /mnt/usbdrive1 auto /devices/platform/tegra-ehci.2/usb1/1-1/1-1.1/1-1.1:1.0
 dev_mount usbdrive2 /mnt/usbdrive2 auto /devices/platform/tegra-ehci.2/usb1/1-1/1-1.2/1-1.2:1.0
