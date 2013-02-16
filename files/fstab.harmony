@@ -5,5 +5,4 @@
 
 
 mtd@system	                                     /system             yaffs2    ro                                                                    wait
-/dev/block/platform/sdhci-tegra.3/by-num/p3          /cache              ext3      noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,errors=panic    wait
-/dev/block/platform/sdhci-tegra.3/by-num/p2          /data               ext4      noatime,nosuid,nodev,nomblk_io_submit,noauto_da_alloc,errors=panic    wait,encryptable=footer
+mtd@cache                                            /cache              yaffs2    rw,noatime,nosuid,nodev    wait
