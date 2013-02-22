@@ -187,7 +187,7 @@ static void select_devices(struct audio_device *adev)
     headphone_on = adev->out_device & (AUDIO_DEVICE_OUT_WIRED_HEADSET | AUDIO_DEVICE_OUT_WIRED_HEADPHONE);
     speaker_on = adev->out_device & AUDIO_DEVICE_OUT_SPEAKER;
     hdmi_on = adev->out_device & AUDIO_DEVICE_OUT_AUX_DIGITAL;
-    main_mic_on = adev->in_device & AUDIO_DEVICE_IN_BUILTIN_MIC;
+    main_mic_on = adev->active_in!=NULL;//adev->in_device & AUDIO_DEVICE_IN_BUILTIN_MIC;
 
     reset_mixer_state(adev->ar);
 
@@ -255,6 +255,9 @@ static void do_in_standby(struct stream_in *in)
             free(in->buffer);
             in->buffer = NULL;
         }
+
+        select_devices(adev);
+
         in->standby = true;
     }
 	ALOGV("do_in_standby-");
@@ -333,6 +336,8 @@ static int start_output_stream(struct stream_out *out)
 
     adev->active_out = out;
 
+    select_devices(adev);
+
     return 0;
 }
 
@@ -409,6 +414,8 @@ static int start_input_stream(struct stream_in *in)
     in->frames_in = 0;
 
     adev->active_in = in;
+
+    select_devices(adev);
 
     return 0;
 }
@@ -891,9 +898,9 @@ static int in_set_parameters(struct audio_stream *stream, const char *kvpairs)
              * because SCO uses a different PCM.
              */
             if (((val & AUDIO_DEVICE_IN_ALL_SCO) ^
-                    (adev->in_device & AUDIO_DEVICE_IN_ALL_SCO)) || 
-                ((val & AUDIO_DEVICE_IN_AUX_DIGITAL) ^
-                    (adev->in_device & AUDIO_DEVICE_IN_AUX_DIGITAL))){
+                    (adev->in_device & AUDIO_DEVICE_IN_ALL_SCO))){// || 
+//                ((val & AUDIO_DEVICE_IN_AUX_DIGITAL) ^
+  //                  (adev->in_device & AUDIO_DEVICE_IN_AUX_DIGITAL))){
                 pthread_mutex_lock(&in->lock);
                 do_in_standby(in);
                 pthread_mutex_unlock(&in->lock);
