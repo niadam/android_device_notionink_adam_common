@@ -56,6 +56,8 @@
 #define SCO_PERIOD_COUNT 4
 #define SCO_SAMPLING_RATE 8000
 
+#define AUDIO_DEVICE(x) ((x) & (~(AUDIO_DEVICE_BIT_IN | AUDIO_DEVICE_BIT_DEFAULT))) 
+
 /* minimum sleep time in out_write() when write threshold is not reached */
 #define MIN_WRITE_SLEEP_US 2000
 #define MAX_WRITE_SLEEP_US ((OUT_PERIOD_SIZE * OUT_SHORT_PERIOD_COUNT * 1000000) \
@@ -125,7 +127,8 @@ struct stream_out {
     int write_threshold;
     int cur_write_threshold;
     int buffer_type;
-
+   
+    audio_devices_t device;
     struct audio_device *dev;
 };
 
@@ -145,6 +148,7 @@ struct stream_in {
     size_t frames_in;
     int read_status;
 
+    audio_devices_t device;
     struct audio_device *dev;
 };
 
@@ -187,7 +191,7 @@ static void select_devices(struct audio_device *adev)
     headphone_on = adev->out_device & (AUDIO_DEVICE_OUT_WIRED_HEADSET | AUDIO_DEVICE_OUT_WIRED_HEADPHONE);
     speaker_on = adev->out_device & AUDIO_DEVICE_OUT_SPEAKER;
     hdmi_on = adev->out_device & AUDIO_DEVICE_OUT_AUX_DIGITAL;
-    main_mic_on = adev->active_in!=NULL;//adev->in_device & AUDIO_DEVICE_IN_BUILTIN_MIC;
+    main_mic_on = adev->active_in ? AUDIO_DEVICE(adev->active_in->device) : 0;//adev->in_device & AUDIO_DEVICE_IN_BUILTIN_MIC;
 
     reset_mixer_state(adev->ar);
 
@@ -1053,6 +1057,7 @@ static int adev_open_output_stream(struct audio_hw_device *dev,
     config->sample_rate = out_get_sample_rate(&out->stream.common);
 
     out->standby = true;
+    out->device = devices;
 
     *stream_out = &out->stream;
     return 0;
@@ -1194,13 +1199,52 @@ static int adev_open_input_stream(struct audio_hw_device *dev,
     struct stream_in *in;
     int ret;
 
-    *stream_in = NULL;
+    ALOGD("adev_open_input_stream: device: 0x%08x, channel_count:%d", devices, popcount(config->channel_mask));
 
-    /* Respond with a request for mono if a different format is given. */
-    if (config->channel_mask != AUDIO_CHANNEL_IN_MONO) {
-        config->channel_mask = AUDIO_CHANNEL_IN_MONO;
-        return -EINVAL;
-    }
+    if (AUDIO_DEVICE(devices) == AUDIO_DEVICE(AUDIO_DEVICE_NONE))
+        devices = AUDIO_DEVICE_IN_BUILTIN_MIC;
+
+    /* Compute the allowed channel mask and sampling rate for the requested device */
+    audio_channel_mask_t allowed_channels = 
+		(AUDIO_DEVICE(devices) & AUDIO_DEVICE(AUDIO_DEVICE_IN_ALL_SCO))
+			? AUDIO_CHANNEL_IN_MONO
+			: AUDIO_CHANNEL_IN_STEREO;
+    uint32_t allowed_sampling_rate = 
+		(AUDIO_DEVICE(devices) & AUDIO_DEVICE(AUDIO_DEVICE_IN_ALL_SCO))
+			? SCO_SAMPLING_RATE
+			: IN_SAMPLING_RATE;
+
+    /* Check if we support the requested format ... Also accept decimation of sampling frequencies in powers of 2 - We will downsample in sw*/
+    if (config->format != AUDIO_FORMAT_PCM_16_BIT ||
+		config->channel_mask != allowed_channels ||
+		( config->sample_rate !=  allowed_sampling_rate && 
+		  config->sample_rate != (allowed_sampling_rate>>1) &&
+		  config->sample_rate != (allowed_sampling_rate>>2) )
+		) {
+		ALOGD("adev_open_input_stream: Unsupported format. Let AudioFlinger do the conversion by returning the acceptable format");
+
+		/* Suggest the record format to the framework, otherwise it crashes */
+		config->format = AUDIO_FORMAT_PCM_16_BIT;
+		config->channel_mask = allowed_channels;
+
+		/* But there is a catch here... AudioFlinger can't downsample to less than half
+		   the sampling rate... So we have to handle it somehow - We have implemented a
+		   decimation by power of 2 filter ... Select the proper reported sampling frequency */
+		if (config->sample_rate >= (allowed_sampling_rate>>1) ) {
+			config->sample_rate = allowed_sampling_rate;	
+		} else if (config->sample_rate >= (allowed_sampling_rate>>2) ) {
+			config->sample_rate = (allowed_sampling_rate>>1);
+		} else {
+			config->sample_rate = (allowed_sampling_rate>>2);
+		}
+
+		/* Let audioflinger adopt our suggested rate */
+		return -EINVAL;
+     }
+
+     ALOGD("adev_open_input_stream: format accepted");
+
+    *stream_in = NULL;
 
     in = (struct stream_in *)calloc(1, sizeof(struct stream_in));
     if (!in)
@@ -1224,6 +1268,7 @@ static int adev_open_input_stream(struct audio_hw_device *dev,
 
     in->dev = adev;
     in->standby = true;
+    in->device = devices;
     in->requested_rate = config->sample_rate;
     in->pcm_config = &pcm_config_in; /* default PCM config */
 

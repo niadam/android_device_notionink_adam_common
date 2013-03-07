@@ -6,9 +6,9 @@
   <ctl name="Headphone Jack Switch" value="0" />
   <ctl name="HP Mix DAC2HP Playback Switch" value="1" />
   <ctl name="Speaker Mix DAC2SPK Playback Switch" value="1" />
-  <ctl name="Int Mic Switch" value="1" />
-  <ctl name="Left Capture Mix Mic1 Capture Switch" value="1" />
-  <ctl name="Right Capture Mix Mic1 Capture Switch" value="1" />
+  <ctl name="Int Mic Switch" value="0" />
+  <ctl name="Left Capture Mix Mic1 Capture Switch" value="0" />
+  <ctl name="Right Capture Mix Mic1 Capture Switch" value="0" />
   <ctl name="Left Headphone Mux" value="HP Left Mix" />
   <ctl name="Right Headphone Mux" value="HP Right Mix" />
   <ctl name="AuxOut Mux" value="HPOut Mix" />
@@ -39,14 +39,12 @@
   <path name="hdmi">
     <ctl name="Auxout Playback Switch" value="0" />
   </path>
-
-  <path name="mic-on">
+  <path name="mic_on">
     <ctl name="Int Mic Switch" value="1" />
     <ctl name="Left Capture Mix Mic1 Capture Switch" value="1" />
     <ctl name="Right Capture Mix Mic1 Capture Switch" value="1" />
   </path>
-
-  <path name="mic-off">
+  <path name="mic_off">
     <ctl name="Int Mic Switch" value="0" />
     <ctl name="Left Capture Mix Mic1 Capture Switch" value="0" />
     <ctl name="Right Capture Mix Mic1 Capture Switch" value="0" />
