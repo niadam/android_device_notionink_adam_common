@@ -99,3 +99,5 @@ PRODUCT_CHARACTERISTICS := tablet
 BOARD_USES_SECURE_SERVICES := true
 BOARD_HAVE_MAGNETIC_SENSOR := true
 
+# Avoid the generation of ldrcc instructions
+NEED_WORKAROUND_CORTEX_A9_745320 := true
