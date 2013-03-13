@@ -52,6 +52,7 @@ TARGET_ARCH_VARIANT_FPU := vfpv3-d16
 TARGET_CPU_SMP := true
 #TARGET_HAVE_TEGRA_ERRATA_657451 := true
 ARCH_ARM_HAVE_TLS_REGISTER := true
+ARCH_ARM_USE_NON_NEON_MEMCPY := true
 
 # kernel - disable inline building for now  
 # TARGET_KERNEL_SOURCE := kernel/notionink/adam
