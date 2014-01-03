@@ -14,7 +14,7 @@
 #include <unistd.h>
 #include "nmea/nmea/nmea.h"
 
-//#define  GPS_DEBUG  1
+#define  GPS_DEBUG  1
 
 #define  LOG_TAG  "gps_adam"
 #define GPS_TTYPORT "/dev/ttyHS3"
