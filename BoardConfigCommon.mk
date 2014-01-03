@@ -50,9 +50,7 @@ TARGET_ARCH_VARIANT := armv7-a
 TARGET_ARCH_VARIANT_CPU := cortex-a9
 TARGET_ARCH_VARIANT_FPU := vfpv3-d16
 TARGET_CPU_SMP := true
-#TARGET_HAVE_TEGRA_ERRATA_657451 := true
-ARCH_ARM_HAVE_TLS_REGISTER := true
-ARCH_ARM_USE_NON_NEON_MEMCPY := true
+TARGET_CPU_VARIANT := cortex-a9
 
 # kernel - disable inline building for now  
 # TARGET_KERNEL_SOURCE := kernel/notionink/adam
@@ -117,3 +115,21 @@ TARGET_SCREEN_WIDTH := 1024
 TARGET_SCREEN_HEIGHT := 600
 
 TARGET_RECOVERY_INITRC := device/notionink/adam_common/recovery/init.rc
+
+# SELinux policies
+HAVE_SELINUX := true
+
+BOARD_SEPOLICY_DIRS += \
+   device/notionink/adam_common/sepolicy
+ 
+BOARD_SEPOLICY_UNION += \
+   file_contexts \
+   genfs_contexts \
+   app.te \
+   device.te \
+   drmserver.te \
+   file.te \
+   mediaserver.te \
+   surfaceflinger.te \
+   system.te \
+   zygote.te
