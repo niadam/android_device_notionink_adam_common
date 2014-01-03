@@ -90,15 +90,20 @@ BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR ?= device/notionink/adam_common/blue
 BOARD_USES_OVERLAY := true
 USE_OPENGL_RENDERER := true
 BOARD_EGL_CFG := device/notionink/adam_common/files/egl.cfg
-#BOARD_EGL_NEEDS_LEGACY_FB := true
+BOARD_EGL_NEEDS_LEGACY_FB := true
 MAX_EGL_CACHE_KEY_SIZE := 4096
 MAX_EGL_CACHE_SIZE := 2146304
 NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
+BOARD_HDMI_MIRROR_MODE := Scale
 
 #TARGET_BOARD_INFO_FILE := device/notionink/adam_common/board-info.txt
  
 PRODUCT_CHARACTERISTICS := tablet
 BOARD_USES_SECURE_SERVICES := true
+
+#GPS
+BOARD_HAVE_GPS := true
+
 BOARD_HAVE_MAGNETIC_SENSOR := true
 
 # Avoid the generation of ldrcc instructions
@@ -110,3 +115,5 @@ TARGET_BOOTANIMATION_TEXTURE_CACHE := true
 TARGET_BOOTANIMATION_USE_RGB565 := true
 TARGET_SCREEN_WIDTH := 1024
 TARGET_SCREEN_HEIGHT := 600
+
+TARGET_RECOVERY_INITRC := device/notionink/adam_common/recovery/init.rc

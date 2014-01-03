@@ -113,7 +113,7 @@ PRODUCT_PACKAGES += \
 	lights.harmony \
 	gps.harmony \
 	camera.tegra \
-	hwcomposer.tegra
+#	hwcomposer.tegra
 
 PRODUCT_PACKAGES += \
 	librs_jni
