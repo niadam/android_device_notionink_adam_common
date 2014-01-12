@@ -77,10 +77,6 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
      device/notionink/adam_common/files/audio_policy.conf:system/etc/audio_policy.conf
 
-# Generic
-PRODUCT_COPY_FILES += \
-   device/notionink/adam_common/files/vold.fstab:system/etc/vold.fstab
-   
 # APNs list
 PRODUCT_COPY_FILES += \
    device/notionink/adam_common/files/apns-conf.xml:system/etc/apns-conf.xml

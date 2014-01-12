@@ -1,8 +1,35 @@
 # Android fstab file.
-#<src>                                                  <mnt_point>         <type>    <mnt_flags>                                                                         <fs_mgr_flags>
+#<src>                                                  <mnt_point>         <type>    <mnt_flags and options>                               <fs_mgr_flags>
 # The filesystem that contains the filesystem checker binary (typically /system) cannot
 # specify MF_CHECK, and must come before any filesystems that do specify MF_CHECK
 
+system                      /system             yaffs2    ro                                                    wait
+cache                       /cache              yaffs2    rw,noatime,nosuid,nodev                               wait
+/dev/block/mmcblk0p2        /data               ext4      noatime,nosuid,nodev,nomblk_io_submit,errors=panic    wait,encryptable=footer
 
-mtd@system	                                     /system             yaffs2    ro                                                                    wait
-mtd@cache                                            /cache              yaffs2    rw,noatime,nosuid,nodev    wait
+## Vold 2.0 fstab for NI Adam
+
+#######################
+## Regular device mount
+##
+## Format: dev_mount <label> <mount_point> <part> <sysfs_path1...>
+## label        - Label for the volume
+## mount_point  - Where the volume will be mounted
+## part         - Partition # (1 based), or 'auto' for first usable partition.
+## <sysfs_path> - List of sysfs paths to source devices
+######################
+/devices/platform/sdhci-tegra.3/mmc_host/mmc1        /storage/sdcard1        auto        defaults voldmanaged=sdcard:auto
+/devices/platform/tegra-ehci.2/usb1/1-1/1-1.1        /storage/usbdisk0        auto    defaults voldmanaged=sda:auto
+/devices/platform/tegra-ehci.2/usb2/2-1/2-1.1   /storage/usbdisk0       auto    defaults voldmanaged=sda:auto
+/devices/platform/tegra-ehci.2/usb2/2-1/2-1:1   /storage/usbdisk0       auto    defaults voldmanaged=sda:auto
+/devices/platform/tegra-ehci.2/usb1/1-1/1-1:1   /storage/usbdisk0       auto    defaults voldmanaged=sda:auto
+
+/devices/platform/tegra-ehci.2/usb1/1-1/1-1.2        /storage/usbdisk1         auto    defaults voldmanaged=sdb:auto
+/devices/platform/tegra-ehci.2/usb2/2-1/2-1.2        /storage/usbdisk1         auto    defaults voldmanaged=sdb:auto
+
+/devices/platform/sdhci-tegra.2/mmc_host/mmc2        /storage/sdcard2         auto    defaults voldmanaged=sdcard:auto
+
+# recovery
+misc                                /misc                        mtd        defaults recoveryonly                                
+recovery                            /recovery                    mtd        defaults recoveryonly
+boot                                /boot                        mtd        defaults recoveryonly

@@ -114,7 +114,10 @@ TARGET_BOOTANIMATION_USE_RGB565 := true
 TARGET_SCREEN_WIDTH := 1024
 TARGET_SCREEN_HEIGHT := 600
 
+# Recovery
 TARGET_RECOVERY_INITRC := device/notionink/adam_common/recovery/init.rc
+TARGET_RECOVERY_FSTAB := device/notionink/adam_common/files/fstab.harmony
+RECOVERY_FSTAB_VERSION := 2
 
 # SELinux policies
 HAVE_SELINUX := true
