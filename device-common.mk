@@ -143,7 +143,8 @@ PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
 	persist.sys.usb.config=mtp
 
 ADDITIONAL_DEFAULT_PROPERTIES += \
-	ro.secure=0 
+	ro.secure=0 \
+	ro.adb.secure=0
 
 PRODUCT_CHARACTERISTICS := tablet
 
