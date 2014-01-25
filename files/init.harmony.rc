@@ -23,12 +23,10 @@ on init
     # make the pathes for the external media mounts
     mkdir /storage/sdcard1 0000 system system
     mkdir /storage/sdcard2 0000 system system
-    mkdir /mnt/usbdrive1 0666 system system
-    mkdir /mnt/usbdrive2 0666 system system
+    mkdir /storage/usbdisk0 0000 system system
+    mkdir /storage/usbdisk1 0000 system system system system
 
     # for backwards compatibility
-    symlink /mnt/usbdrive1 /usbdrive1
-    symlink /mnt/usbdrive2 /usbdrive2
     symlink /storage/sdcard1 /internal_sd
     symlink /storage/sdcard1 /mnt/internal_sd
     symlink /storage/sdcard2 /microsd
@@ -38,8 +36,11 @@ on fs
     # Mount /system rw first to give the filesystem a chance to save a checkpoint
     setprop ro.crypto.tmpfs_options size=128m,mode=0771,uid=1000,gid=1000
     setprop ro.crypto.umount_sd false
-    mount ext4 /dev/block/mmcblk0p2 /data wait noatime nosuid nodev
     mount_all /fstab.harmony
+
+    # NI Adam has problems mounting data through fstab, so we mount here
+    mount ext4 /dev/block/mmcblk0p2 /data wait noatime nosuid nodev
+
 
 on post-fs
     # Keep rootfs rw since FUSE needs dir creation
@@ -113,6 +114,8 @@ on boot
     mkdir /data/gps
     chown system system /data/gps
     chmod 770 /data/gps
+    chown gps system /dev/ttyHS3
+    chmod 0664 /dev/ttyHS3
 
 # GPS power gpio
     write /sys/class/gpio/export 171
@@ -168,7 +171,7 @@ service dhcpcd_p2p /system/bin/dhcpcd -aABKL
     oneshot
 
 # bluetooth
-service dhcpcd_bnep0 /system/bin/dhcpcd -ABKL
+service dhcpcd_bt-pan /system/bin/dhcpcd -ABKL
     disabled
     oneshot
 
@@ -196,16 +199,6 @@ service iprenew_eth0 /system/bin/dhcpcd -n
 # underlying files in /data/media wil be created with user and group media_rw (1023)
     service sdcard /system/bin/sdcard /data/media /mnt/shell/emulated 1023 1023
     class late_start
-
-#BCM
-#service hciattach /system/bin/brcm_patchram_plus --enable_hci \
-#    --baudrate 921600 --patchram /system/etc/firmware/bcm4329.hcd --tosleep 50000 \
-#    --i2s=1,1,0,1 --enable_lpm /dev/ttyHS2
-#    class main
-#    user root
-#    group system bluetooth net_bt_admin misc
-#    oneshot
-#    disabled
 
 # Enable tcpdump-service
 #service netdump-service /system/xbin/tcpdump -i any -C 5 -p -s 0 -w /sdcard/netdump.cap

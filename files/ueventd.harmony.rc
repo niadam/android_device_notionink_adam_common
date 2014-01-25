@@ -8,14 +8,21 @@
 /dev/spdif*   0660   system   audio
 /dev/ttyACM*   0777   radio   system
 /dev/ttyHS1   0660   radio   system
-/dev/ttyHS2   0660   radio   system
+/dev/ttyHS2   0660   bluetooth    net_bt_stack
 /dev/ttyHS3   0664   gps   system
 /dev/ttyHS4   0660   radio   system
 /dev/video0	0660	media	camera
 /dev/video1	0660	media	camera
 /dev/tegra_dc*   0660   system   system
 /dev/fuse   0666   root   root
-/sys/devices/platform/bcm4329_rfkill/rfkill/rfkill*   state   0666   radio   system
+/dev/nvhdcp*            0600    system  system
+/dev/nvhost-ctrl        0666    root    root
+/dev/nvhost-dsi         0666    root    root
+/dev/nvhost-gr2d        0666    root    root
+/dev/nvhost-gr3d        0666    root    root
+/dev/nvhost-mpe         0666    root    root
+/dev/tegra-crypto       0660    system  system
+/dev/rfkill             0660    wifi    wifi
 /sys/devices/platform/tegra_uart.2/tty/ttyHS2/hci0/rfkill*   state   0666   radio   system
 
 # For USB 3G modems
