@@ -50,11 +50,15 @@ TARGET_ARCH_VARIANT := armv7-a
 TARGET_ARCH_VARIANT_CPU := cortex-a9
 TARGET_ARCH_VARIANT_FPU := vfpv3-d16
 TARGET_CPU_SMP := true
-TARGET_CPU_VARIANT := cortex-a9
+TARGET_CPU_VARIANT := generic
 
-# kernel - disable inline building for now  
-# TARGET_KERNEL_SOURCE := kernel/notionink/adam
-# TARGET_KERNEL_CONFIG := tegra_adam_defconfig
+# kernel   
+#TARGET_KERNEL_SOURCE := kernel/notionink/adam
+TARGET_KERNEL_CONFIG := tegra_smba1006_defconfig
+TARGET_KERNEL_VARIANT_CONFIG := tegra_smba1006_defconfig
+TARGET_KERNEL_SELINUX_CONFIG := tegra_smba1006_defconfig
+
+# kernel fallback - if kernel source is not present use prebuilt
 TARGET_PREBUILT_KERNEL := device/notionink/adam_common/kernel
 
 BOARD_KERNEL_BASE := 0x10000000
@@ -64,6 +68,7 @@ BOARD_PAGE_SIZE := 0x00000800
 #MRDEAD CMDLINE
 #BOARD_KERNEL_CMDLINE := tegra_fbmem=8192000@0x1e018000 video=tegrafb console=tty0,115200n8 androidboot.console=tty0 mem=1024M@0M lp0_vec=8192@0x1e7f1020 lcd_manfid=AUO usbcore.old_scheme_first=1 tegraboot=nand mtdparts=tegra_nand:16384K@9984K(misc),16384K@26880K(recovery),32768K@43776K(boot),204800K@77056K(system),765696K@282368K(cache)
 #androidboot.carrier=wifi-only product_type=w
+#BOARD_KERNEL_CMDLINE := console=tty0,115200n8 androidboot.console=tty0
 
 # Wifi related defines
 BOARD_WPA_SUPPLICANT_DRIVER := NL80211
@@ -115,9 +120,12 @@ TARGET_SCREEN_WIDTH := 1024
 TARGET_SCREEN_HEIGHT := 600
 
 # Recovery
+RECOVERY_FSTAB_VERSION := 2
 TARGET_RECOVERY_INITRC := device/notionink/adam_common/recovery/init.rc
 TARGET_RECOVERY_FSTAB := device/notionink/adam_common/files/fstab.harmony
-RECOVERY_FSTAB_VERSION := 2
+TARGET_RECOVERY_PIXEL_FORMAT := "RGB_565"
+BOARD_CUSTOM_RECOVERY_KEYMAPPING := ../../device/notionink/adam_common/recovery/recovery_keys.c
+BOARD_RECOVERY_SWIPE := true
 
 # SELinux policies
 HAVE_SELINUX := true
