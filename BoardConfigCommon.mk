@@ -53,6 +53,8 @@ TARGET_ARCH_VARIANT_FPU := vfpv3-d16
 TARGET_CPU_SMP := true
 TARGET_CPU_VARIANT := tegra2
 
+ARCH_ARM_HIGH_OPTIMIZATION := true
+
 # kernel   
 #TARGET_KERNEL_SOURCE := kernel/notionink/adam
 TARGET_KERNEL_CONFIG := tegra_smba1006_defconfig
