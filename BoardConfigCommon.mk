@@ -42,6 +42,7 @@ BOARD_USERDATAIMAGE_PARTITION_SIZE := 0x105c0000
 TARGET_ARCH := arm
 TARGET_NO_RADIOIMAGE := true
 TARGET_BOARD_PLATFORM := tegra
+TARGET_TEGRA_VERSION := t20
 TARGET_BOOTLOADER_BOARD_NAME := harmony
 TARGET_NO_BOOTLOADER := true
 TARGET_CPU_ABI := armeabi-v7a
@@ -50,7 +51,7 @@ TARGET_ARCH_VARIANT := armv7-a
 TARGET_ARCH_VARIANT_CPU := cortex-a9
 TARGET_ARCH_VARIANT_FPU := vfpv3-d16
 TARGET_CPU_SMP := true
-TARGET_CPU_VARIANT := generic
+TARGET_CPU_VARIANT := tegra2
 
 # kernel   
 #TARGET_KERNEL_SOURCE := kernel/notionink/adam
@@ -130,17 +131,32 @@ BOARD_RECOVERY_SWIPE := true
 # SELinux policies
 HAVE_SELINUX := true
 
-BOARD_SEPOLICY_DIRS += \
-   device/notionink/adam_common/sepolicy
+ifeq ($(HAVE_SELINUX),true)
+
+POLICYVERS   := 24
+
+  BOARD_SEPOLICY_DIRS += \
+     device/notionink/adam_common/sepolicy
  
-BOARD_SEPOLICY_UNION += \
-   file_contexts \
-   genfs_contexts \
-   app.te \
-   device.te \
-   drmserver.te \
-   file.te \
-   mediaserver.te \
-   surfaceflinger.te \
-   system.te \
-   zygote.te
+BOARD_SEPOLICY_UNION := \
+    file_contexts \
+    app.te \
+    device.te \
+    drmserver.te \
+    file.te \
+    genfs_contexts \
+    init.te \
+    media_app.te \
+    release_app.te \
+    mediaserver.te \
+    platform_app.te \
+    sensors_config.te \
+    shared_app.te \
+    surfaceflinger.te \
+    system_app.te \
+    system.te \
+    wpa_socket.te \
+    wpa.te \
+    zygote.te
+
+endif

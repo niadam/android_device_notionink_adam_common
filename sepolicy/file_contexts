@@ -1,3 +1,4 @@
+/dev/diag                         u:object_r:diag_device:s0
 /dev/knvmap                       u:object_r:knv_device:s0
 /dev/nvmap                        u:object_r:nv_device:s0
 /dev/tegra_camera                 u:object_r:camera_device:s0
@@ -10,6 +11,11 @@
 /dev/ttyHS3                       u:object_r:gps_device:s0
 /dev/ttyHS2                       u:object_r:hci_attach_dev:s0
 /dev/mmc31xx                      u:object_r:sensors_device:s0
+
+/data/calibration(/.*)?           u:object_r:sensors_data_file:s0
+/data/lightsensor(/.*)?           u:object_r:sensors_data_file:s0
+/data/sensors(/.*)?               u:object_r:sensors_data_file:s0
+/data/tf(/.*)?                    u:object_r:tee_data_file:s0
 
 /sys/devices/system/cpu(/.*)?                     u:object_r:sysfs_devices_system_cpu:s0
 /sys/devices/tegradc\.0(/.*)?                u:object_r:sysfs_devices_tegradc:s0
