@@ -33,14 +33,15 @@ on init
     symlink /storage/sdcard2 /mnt/microsd
 
 on fs
-    # Mount /system rw first to give the filesystem a chance to save a checkpoint
-    setprop ro.crypto.tmpfs_options size=128m,mode=0771,uid=1000,gid=1000
-    setprop ro.crypto.umount_sd false
     mount_all /fstab.harmony
+    setprop ro.crypto.fuse_sdcard true
 
     # NI Adam has problems mounting data through fstab, so we mount here
     mount ext4 /dev/block/mmcblk0p2 /data wait noatime nosuid nodev
 
+    # virtual sdcard daemon running as media_rw (1023)
+    service sdcard /system/bin/sdcard /data/media /mnt/shell/emulated 1023 1023
+    class late_start
 
 on post-fs
     # Keep rootfs rw since FUSE needs dir creation
@@ -71,6 +72,8 @@ on boot
     chmod 0660 /sys/class/rfkill/rfkill0/type
     chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/state
     chown bluetooth net_bt_stack /sys/class/rfkill/rfkill0/type
+    restorecon /sys/class/rfkill/rfkill0/state
+    restorecon /sys/class/rfkill/rfkill0/type
     write /sys/class/rfkill/rfkill0/state 0
     symlink /system/lib/hw/wlan/bcm4329B1.hcd /data/BCM4329B1.hcd
     symlink /system/lib/hw/wlan/bcm4329B1.hcd /data/bcm4329B1.hcd
