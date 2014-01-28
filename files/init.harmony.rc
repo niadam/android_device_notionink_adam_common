@@ -32,13 +32,18 @@ on init
     symlink /storage/sdcard2 /microsd
     symlink /storage/sdcard2 /mnt/microsd
 
+    # Create mountpoint so Dalvik can mark as slave in zygotes.
+    mount tmpfs tmpfs /storage mode=0050,uid=0,gid=1028
+
 on fs
     mount_all /fstab.harmony
-    setprop ro.crypto.fuse_sdcard true
+    setprop ro.crypto.tmpfs_options size=128m,mode=0771,uid=1000,gid=1000
+    setprop ro.crypto.umount_sd false
+    #setprop ro.crypto.fuse_sdcard true
 
     # virtual sdcard daemon running as media_rw (1023)
-    service sdcard /system/bin/sdcard /data/media /mnt/shell/emulated 1023 1023
-    class late_start
+#    service sdcard /system/bin/sdcard /data/media /mnt/shell/emulated 1023 1023
+ #   class late_start
 
 on post-fs
     # Keep rootfs rw since FUSE needs dir creation
