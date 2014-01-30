@@ -17,15 +17,6 @@
 # This variable is set first, so it can be overridden
 # by BoardConfigVendor.mk
 
-USE_CAMERA_STUB := false
-
-TARGET_USES_OLD_LIBSENSORS_HAL := false
-
-# Audio
-BOARD_USES_GENERIC_AUDIO := false
-BOARD_USES_AUDIO_LEGACY := false
-BOARD_USES_ALSA_AUDIO := false
-
 # Devices asserts
 TARGET_OTA_ASSERT_DEVICE := adam,adam_3g,adam_recovery
 
@@ -53,14 +44,26 @@ TARGET_ARCH_VARIANT_FPU := vfpv3-d16
 TARGET_CPU_SMP := true
 TARGET_CPU_VARIANT := tegra2
 
-ARCH_ARM_HIGH_OPTIMIZATION := true
+#TARGET_BOARD_INFO_FILE := device/notionink/adam_common/board-info.txt
 
-# kernel   
+# Compiler Optimization - This is a @codefireX specific flag to use -O3 everywhere.
+ARCH_ARM_HIGH_OPTIMIZATION := true
+# ANDROID, LINUX-ARM AND TLS REGISTER EMULATION
+ARCH_ARM_HAVE_TLS_REGISTER := true
+# Avoid the generation of ldrcc instructions
+NEED_WORKAROUND_CORTEX_A9_745320 := true
+#define to use all of the Linaro Cortex-A9 optimized string funcs,
+#instead of subset known to work on all machines
+USE_ALL_OPTIMIZED_STRING_FUNCS := true
+# customize the malloced address to be 16-byte aligned
+BOARD_MALLOC_ALIGNMENT := 16
+TARGET_EXTRA_CFLAGS := $(call cc-option,-mtune=cortex-a9) $(call cc-option,-mcpu=cortex-a9)
+
+# Kernel   
 #TARGET_KERNEL_SOURCE := kernel/notionink/adam
 TARGET_KERNEL_CONFIG := tegra_smba1006_defconfig
 TARGET_KERNEL_VARIANT_CONFIG := tegra_smba1006_defconfig
 TARGET_KERNEL_SELINUX_CONFIG := tegra_smba1006_defconfig
-
 # kernel fallback - if kernel source is not present use prebuilt
 TARGET_PREBUILT_KERNEL := device/notionink/adam_common/kernel
 
@@ -91,22 +94,34 @@ BOARD_HAVE_BLUETOOTH_BCM := true
 BOARD_BLUEDROID_VENDOR_CONF := device/notionink/adam_common/bluetooth/libbt_vndcfg.txt
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR ?= device/notionink/adam_common/bluetooth
 
-# graphics
+# display
+# Use nicer font rendering
+BOARD_USE_SKIA_LCDTEXT := true
+BOARD_NO_ALLOW_DEQUEUE_CURRENT_BUFFER := true
+
+# Tegra2 EGL support
 BOARD_USES_OVERLAY := true
+BOARD_USES_HGL := true
 USE_OPENGL_RENDERER := true
 BOARD_EGL_CFG := device/notionink/adam_common/files/egl.cfg
 BOARD_EGL_NEEDS_LEGACY_FB := true
 BOARD_HDMI_MIRROR_MODE := Scale
+BOARD_USE_MHEAP_SCREENSHOT := true
 
-#TARGET_BOARD_INFO_FILE := device/notionink/adam_common/board-info.txt
- 
-#GPS
+# GPS
 BOARD_HAVE_GPS := true
 
-BOARD_HAVE_MAGNETIC_SENSOR := true
+# Camera
+USE_CAMERA_STUB := false
 
-# Avoid the generation of ldrcc instructions
-NEED_WORKAROUND_CORTEX_A9_745320 := true
+# Audio
+BOARD_USES_GENERIC_AUDIO := false
+BOARD_USES_AUDIO_LEGACY := false
+BOARD_USES_ALSA_AUDIO := false
+
+# Sensors
+TARGET_USES_OLD_LIBSENSORS_HAL := false
+BOARD_HAVE_MAGNETIC_SENSOR := true
 
 # Preload bootanimation in to memory
 TARGET_BOOTANIMATION_PRELOAD := true
@@ -128,30 +143,30 @@ HAVE_SELINUX := true
 
 ifeq ($(HAVE_SELINUX),true)
 
-POLICYVERS   := 24
-
-  BOARD_SEPOLICY_DIRS += \
-     device/notionink/adam_common/sepolicy
+	POLICYVERS := 24
+	
+	BOARD_SEPOLICY_DIRS += \
+	device/notionink/adam_common/sepolicy
  
-BOARD_SEPOLICY_UNION := \
-    file_contexts \
-    app.te \
-    device.te \
-    drmserver.te \
-    file.te \
-    genfs_contexts \
-    init.te \
-    media_app.te \
-    release_app.te \
-    mediaserver.te \
-    platform_app.te \
-    sensors_config.te \
-    shared_app.te \
-    surfaceflinger.te \
-    system_app.te \
-    system.te \
-    wpa_socket.te \
-    wpa.te \
-    zygote.te
+	BOARD_SEPOLICY_UNION := \
+		file_contexts \
+		app.te \
+		device.te \
+		drmserver.te \
+		file.te \
+		genfs_contexts \
+		init.te \
+		media_app.te \
+		release_app.te \
+		mediaserver.te \
+		platform_app.te \
+		sensors_config.te \
+		shared_app.te \
+		surfaceflinger.te \
+		system_app.te \
+		system.te \
+		wpa_socket.te \
+		wpa.te \
+		zygote.te
 
 endif
