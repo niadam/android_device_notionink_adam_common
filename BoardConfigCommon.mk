@@ -80,7 +80,6 @@ BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_bcmdhd
 BOARD_HOSTAPD_DRIVER        := NL80211
 BOARD_HOSTAPD_PRIVATE_LIB   := lib_driver_cmd_bcmdhd
 BOARD_WLAN_DEVICE           := bcmdhd
-#WIFI_DRIVER_MODULE_PATH     := "/system/lib/modules/bcm4329.ko"
 WIFI_DRIVER_FW_PATH_PARAM   := "/sys/module/bcmdhd/parameters/firmware_path"
 WIFI_DRIVER_FW_PATH_STA     := "/system/vendor/firmware/fw_bcmdhd.bin"
 WIFI_DRIVER_FW_PATH_P2P     := "/system/vendor/firmware/fw_bcmdhd_p2p.bin"
@@ -104,9 +103,6 @@ BOARD_HDMI_MIRROR_MODE := Scale
 
 #TARGET_BOARD_INFO_FILE := device/notionink/adam_common/board-info.txt
  
-PRODUCT_CHARACTERISTICS := tablet
-BOARD_USES_SECURE_SERVICES := true
-
 #GPS
 BOARD_HAVE_GPS := true
 
