@@ -96,9 +96,6 @@ BOARD_USES_OVERLAY := true
 USE_OPENGL_RENDERER := true
 BOARD_EGL_CFG := device/notionink/adam_common/files/egl.cfg
 BOARD_EGL_NEEDS_LEGACY_FB := true
-MAX_EGL_CACHE_KEY_SIZE := 4096
-MAX_EGL_CACHE_SIZE := 2146304
-NUM_FRAMEBUFFER_SURFACE_BUFFERS := 3
 BOARD_HDMI_MIRROR_MODE := Scale
 
 #TARGET_BOARD_INFO_FILE := device/notionink/adam_common/board-info.txt
