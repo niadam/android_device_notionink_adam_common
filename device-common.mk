@@ -108,8 +108,8 @@ PRODUCT_PACKAGES += \
 	sensors.harmony \
 	lights.harmony \
 	gps.harmony \
-	camera.tegra \
-	hwcomposer.tegra
+	camera.tegra #\
+	#hwcomposer.tegra
 
 PRODUCT_PACKAGES += \
 	librs_jni
@@ -136,7 +136,9 @@ PRODUCT_COPY_FILES += \
 
 PRODUCT_PROPERTY_OVERRIDES += \
 	ro.opengles.version=131072 \
-	ro.opengles.surface.rgb565=true
+	ro.opengles.surface.rgb565=true \
+	# GPU producer to CPU consumer not supported
+	ro.bq.gpu_to_cpu_unsupported=1
 
 #Set default.prop properties for root + mtp
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
