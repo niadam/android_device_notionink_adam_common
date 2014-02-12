@@ -2,11 +2,16 @@ import init.harmony.usb.rc
 
 on early-init
     mount debugfs debugfs /sys/kernel/debug
+    mkdir /storage 0666 system sdcard_r
 
 on init
     mkdir /mnt/shell/emulated 0700 shell shell
-    mkdir /storage 0775 system sdcard_rw
+
+    # Create mountpoint so Dalvik can mark as slave in zygotes.
+    #mount tmpfs tmpfs /storage mode=0050,uid=0,gid=1028
+
     mkdir /storage/emulated 0555 root root
+
     export EXTERNAL_STORAGE /storage/emulated/legacy
     export SECONDARY_STORAGE /storage/sdcard1
     export SECOND_VOLUME_STORAGE /storage/sdcard1
@@ -24,7 +29,7 @@ on init
     mkdir /storage/sdcard1 0000 system system
     mkdir /storage/sdcard2 0000 system system
     mkdir /storage/usbdisk0 0000 system system
-    mkdir /storage/usbdisk1 0000 system system system system
+    mkdir /storage/usbdisk1 0000 system system
 
     # for backwards compatibility
     symlink /storage/sdcard1 /internal_sd
@@ -32,18 +37,19 @@ on init
     symlink /storage/sdcard2 /microsd
     symlink /storage/sdcard2 /mnt/microsd
 
-    # Create mountpoint so Dalvik can mark as slave in zygotes.
-    mount tmpfs tmpfs /storage mode=0050,uid=0,gid=1028
+    # Save bugreports as owner
+    export BUGREPORT_WRITE_PATH /mnt/shell/sdcard0/0
+    export BUGREPORT_READ_PATH /storage/sdcard0
 
 on fs
     mount_all /fstab.harmony
     setprop ro.crypto.tmpfs_options size=128m,mode=0771,uid=1000,gid=1000
     setprop ro.crypto.umount_sd false
-    #setprop ro.crypto.fuse_sdcard true
+    setprop ro.crypto.fuse_sdcard true
 
     # virtual sdcard daemon running as media_rw (1023)
-#    service sdcard /system/bin/sdcard /data/media /mnt/shell/emulated 1023 1023
- #   class late_start
+    service sdcard /system/bin/sdcard /data/media /mnt/shell/emulated 1023 1023
+    class late_start
 
 on post-fs
     # Keep rootfs rw since FUSE needs dir creation
@@ -105,6 +111,8 @@ on boot
     chmod 664 /sys/bus/iio/devices/device0/lux
     chmod 664 /sys/bus/iio/devices/device0/proxim_ir
 
+# 4.3 requires
+    chmod 0644 /proc/cmdline
 
 # Power management settings
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 216000
@@ -199,11 +207,6 @@ service iprenew_eth0 /system/bin/dhcpcd -n
     disabled
     oneshot
 
-# create virtual SD card at /mnt/sdcard, based on the /data/media directory
-# deamon will drop to user/group system/media_rw after initializing
-# underlying files in /data/media wil be created with user and group media_rw (1023)
-    service sdcard /system/bin/sdcard /data/media /mnt/shell/emulated 1023 1023
-    class late_start
 
 # Enable tcpdump-service
 #service netdump-service /system/xbin/tcpdump -i any -C 5 -p -s 0 -w /sdcard/netdump.cap
