@@ -102,12 +102,12 @@ BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR ?= device/notionink/adam_common/blue
 # display
 # Use nicer font rendering
 BOARD_USE_SKIA_LCDTEXT := true
-#BOARD_NO_ALLOW_DEQUEUE_CURRENT_BUFFER := true
+BOARD_NO_ALLOW_DEQUEUE_CURRENT_BUFFER := true
 TARGET_RUNNING_WITHOUT_SYNC_FRAMEWORK : = true
 
 # Tegra2 EGL support
-#BOARD_USES_OVERLAY := true
-#BOARD_USES_HGL := true
+BOARD_USES_OVERLAY := true
+BOARD_USES_HGL := true
 USE_OPENGL_RENDERER := true
 BOARD_EGL_CFG := device/notionink/adam_common/files/egl.cfg
 BOARD_EGL_NEEDS_LEGACY_FB := true
