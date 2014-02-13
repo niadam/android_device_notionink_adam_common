@@ -113,6 +113,12 @@ BOARD_EGL_CFG := device/notionink/adam_common/files/egl.cfg
 BOARD_EGL_NEEDS_LEGACY_FB := true
 BOARD_HDMI_MIRROR_MODE := Scale
 BOARD_USE_MHEAP_SCREENSHOT := true
+BOARD_USES_HWCOMPOSER := true
+BOARD_EGL_WORKAROUND_BUG_10194508 := true
+SKIP_SET_METADATA := true
+
+# Enable WEBGL in WebKit
+ENABLE_WEBGL := true
 
 # GPS
 BOARD_HAVE_GPS := true
@@ -129,6 +135,12 @@ BOARD_HAVE_OLD_OMX_LIBS := true
 # Sensors
 TARGET_USES_OLD_LIBSENSORS_HAL := false
 BOARD_HAVE_MAGNETIC_SENSOR := true
+
+# Compatibility with pre-kitkat Sensor HALs
+SENSORS_NEED_SETRATE_ON_ENABLE := true
+
+# Misc flags
+COMMON_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS
 
 # Preload bootanimation in to memory
 TARGET_BOOTANIMATION_PRELOAD := true
