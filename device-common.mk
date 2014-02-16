@@ -54,7 +54,6 @@ PRODUCT_COPY_FILES += \
 
 # Bluetooth config files
 PRODUCT_COPY_FILES += \
-    system/bluetooth/data/main.nonsmartphone.conf:system/etc/bluetooth/main.conf \
     device/notionink/adam_common/files/bt_vendor.conf:system/etc/bluetooth/bt_vendor.conf \
 	
 # Touchscreen
