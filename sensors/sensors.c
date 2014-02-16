@@ -30,15 +30,15 @@ static const struct sensor_t sSensorList[] = {
         { "lis3lv02d 3-axis Accelerometer",
                 "LIS",
                 1, SENSORS_HANDLE_BASE+ID_A,
-                SENSOR_TYPE_ACCELEROMETER, MAX_RANGE_A, CONVERT_A, 0.57f, 20000, { } },
+                SENSOR_TYPE_ACCELEROMETER, MAX_RANGE_A, CONVERT_A, 0.57f, 20000, 0, 0, { } },
 	{ "ISL29023 Light Sensor",
                 "ISL",
                 1, SENSORS_HANDLE_BASE+ID_L,
-                SENSOR_TYPE_LIGHT, 1000.0f, 0.05f, 0.003f, 0,  { } },
+                SENSOR_TYPE_LIGHT, 1000.0f, 0.05f, 0.003f, 0, 0, 0,  { } },
 	{ "MMC31xx 3-axis Magnetic field sensor",
                 "Memsic",
                 1, SENSORS_HANDLE_BASE+ID_M,
-                SENSOR_TYPE_MAGNETIC_FIELD, 800.0f, 100.0/512.0 , 6.8f, 30000, { } }
+                SENSOR_TYPE_MAGNETIC_FIELD, 800.0f, 100.0/512.0 , 6.8f, 30000, 0, 0, { } }
 };
 
 static int open_sensors(const struct hw_module_t* module, const char* name,
