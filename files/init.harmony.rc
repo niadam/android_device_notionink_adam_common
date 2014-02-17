@@ -288,6 +288,11 @@ on device-removed-/dev/ttyUSB3
 on property:init.svc.bootanim=stopped
     start wwlanselect
 
+# Preboot service
+service adam_preboot /system/bin/sh /system/etc/adam_preboot.sh
+    user root
+    oneshot
+
 # Postboot service
 service adam_postboot /system/bin/sh /system/etc/adam_postboot.sh
     user root
@@ -296,3 +301,6 @@ service adam_postboot /system/bin/sh /system/etc/adam_postboot.sh
 on property:init.svc.bootanim=stopped
     start adam_postboot
     class_start postbootinit
+
+on property:init.svc.vold=running
+    start adam_preboot

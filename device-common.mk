@@ -80,6 +80,8 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
    device/notionink/adam_common/files/apns-conf.xml:system/etc/apns-conf.xml
 
+PRODUCT_COPY_FILES += \
+   device/notionink/adam_common/files/adam_preboot.sh:system/etc/adam_preboot.sh
       
 PRODUCT_PROPERTY_OVERRIDES := \
     wifi.interface=wlan0 \
@@ -144,6 +146,10 @@ PRODUCT_PROPERTY_OVERRIDES += \
 #Set default.prop properties for root + mtp
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
 	persist.sys.usb.config=mtp
+
+#PRODUCT_PROPERTY_OVERRIDES += \
+#    ro.boot.selinux=disabled \
+#    ro.build.selinux=0 
 
 ADDITIONAL_DEFAULT_PROPERTIES += \
 	ro.secure=0 \
