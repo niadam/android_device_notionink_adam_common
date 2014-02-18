@@ -130,7 +130,7 @@ USE_CAMERA_STUB := false
 BOARD_USES_GENERIC_AUDIO := false
 BOARD_USES_AUDIO_LEGACY := false
 BOARD_USES_ALSA_AUDIO := false
-BOARD_HAVE_OLD_OMX_LIBS := true
+BOARD_OMX_NEEDS_LEGACY_AUDIO := true
 
 # Sensors
 TARGET_USES_OLD_LIBSENSORS_HAL := false
@@ -162,30 +162,21 @@ HAVE_SELINUX := true
 
 ifeq ($(HAVE_SELINUX),true)
 
-	POLICYVERS := 24
+	#POLICYVERS := 24
 	
 	BOARD_SEPOLICY_DIRS += \
 	device/notionink/adam_common/sepolicy
  
-	BOARD_SEPOLICY_UNION := \
-		file_contexts \
-		app.te \
-		device.te \
-		drmserver.te \
-		file.te \
-		genfs_contexts \
-		init.te \
-		media_app.te \
-		release_app.te \
-		mediaserver.te \
-		platform_app.te \
-		sensors_config.te \
-		shared_app.te \
-		surfaceflinger.te \
-		system_app.te \
-		system.te \
-		wpa_socket.te \
-		wpa.te \
-		zygote.te
+BOARD_SEPOLICY_UNION += \
+        file_contexts \
+        genfs_contexts \
+        app.te \
+        device.te \
+        drmserver.te \
+        file.te \
+        mediaserver.te \
+        surfaceflinger.te \
+        system.te \
+        zygote.te
 
 endif
