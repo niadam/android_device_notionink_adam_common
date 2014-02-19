@@ -2,87 +2,59 @@ import init.harmony.usb.rc
 
 on early-init
     mount debugfs debugfs /sys/kernel/debug
-    mkdir /storage 0666 system sdcard_r
 
 on init
+    mkdir /mnt/media_rw 0777 media_rw media_rw
+    mkdir /mnt/media_rw/sdcard1 0777 media_rw media_rw
+    mkdir /mnt/media_rw/sdcard2 0777 media_rw media_rw
+    mkdir /mnt/media_rw/usbdisk0 0777 media_rw media_rw
+    mkdir /mnt/media_rw/usbdisk1 0777 media_rw media_rw
     mkdir /mnt/shell/emulated 0700 shell shell
-
-    # Create mountpoint so Dalvik can mark as slave in zygotes.
-    #mount tmpfs tmpfs /storage mode=0050,uid=0,gid=1028
-
+    mkdir /storage 0775 system sdcard_rw
     mkdir /storage/emulated 0555 root root
-
     export EXTERNAL_STORAGE /storage/emulated/legacy
     export SECONDARY_STORAGE /storage/sdcard1:/storage/sdcard2:/storage/usbdisk0:/storage/usbdisk1
+
     export EMULATED_STORAGE_SOURCE /mnt/shell/emulated
     export EMULATED_STORAGE_TARGET /storage/emulated
 
-    # make the pathes for the external media mounts
-    mkdir /mnt/media_rw/sdcard0 0700 media_rw media_rw
-    mkdir /mnt/media_rw/sdcard1 0700 media_rw media_rw
-    mkdir /mnt/media_rw/sdcard2 0700 media_rw media_rw
-    mkdir /mnt/media_rw/usbdisk0 0700 media_rw media_rw
-    mkdir /mnt/media_rw/usbdisk1 0700 media_rw media_rw
-    mkdir /storage/sdcard1 0666 root root
-    mkdir /storage/sdcard2 0666 root root
-    mkdir /storage/usbdisk0 0666 root root
-    mkdir /storage/usbdisk1 0666 root root
-
     # for backwards compatibility
-    symlink /storage/sdcard1 /internal_sd
-    symlink /storage/sdcard1 /mnt/internal_sd
-    symlink /storage/sdcard2 /microsd
-    symlink /storage/sdcard2 /mnt/microsd
     symlink /storage/emulated/legacy /sdcard
     symlink /storage/emulated/legacy /mnt/sdcard
     symlink /storage/emulated/legacy /storage/sdcard0
     symlink /mnt/shell/emulated/0 /storage/emulated/legacy
+    #symlink /mnt/shell/emulated/0 /storage/emulated/0
 
+    # make the pathes for the external media mounts
+    mkdir /storage/sdcard1 0000 system system
+    mkdir /storage/sdcard2 0000 system system
+    mkdir /storage/usbdisk0 0000 system system
+    mkdir /storage/usbdisk1 0000 system system
+
+    # for backwards compatibility
+    symlink /storage/usbdisk0 /mnt/usbdisk0
+    symlink /storage/usbdisk1 /mnt/usbdisk1
+    symlink /mnt/usbdisk0 /usbdisk0
+    symlink /mnt/usbdisk1 /usbdisk1
+    symlink /storage/sdcard1 /internal_sd
+    symlink /storage/sdcard1 /mnt/internal_sd
+    symlink /storage/sdcard2 /microsd
+    symlink /storage/sdcard2 /mnt/microsd
+    
     # Save bugreports as owner
     export BUGREPORT_WRITE_PATH /mnt/shell/sdcard0/0
     export BUGREPORT_READ_PATH /storage/sdcard0
 
 on fs
     mount_all /fstab.harmony
+    # mount ext3 /dev/block/mmcblk0p2 /data wait noatime nosuid nodev
+    mount yaffs2 mtd@cache /cache nosuid nodev
+    mount yaffs2 mtd@system /system
+    
     setprop ro.crypto.tmpfs_options size=128m,mode=0771,uid=1000,gid=1000
     setprop ro.crypto.umount_sd false
     setprop ro.crypto.fuse_sdcard true
-
-    # virtual sdcard daemon running as media_rw (1023)
-    service sdcard /system/bin/sdcard -u 1023 -g 1023 -l /data/media /mnt/shell/emulated
-    class late_start
-
-service fuse_sdcard0 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard0 /storage/sdcard0
-    class late_start
-    disabled
-
-service fuse_sdcard1 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard1 /storage/sdcard1
-    class late_start
-    disabled
-
-service fuse_sdcard2 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard2 /storage/sdcard2
-    class late_start
-    disabled
-
-service fuse_usbdisk0 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/usbdisk0 /storage/usbdisk0
-    class late_start
-    disabled
-
-service fuse_usbdisk1 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/usbdisk1 /storage/usbdisk1
-    class late_start
-    disabled
-
-on property:ro.fuse_sdcard=true
-    start sdcard
-
-# This will make sure that sdcard service starts as late_start.
-on nonencrypted
-    setprop ro.fuse_sdcard ${persist.fuse_sdcard}
-
-on property:vold.decrypt=trigger_restart_framework
-    setprop ro.fuse_sdcard ${persist.fuse_sdcard}
-
-
+    
 on post-fs
     # Keep rootfs rw since FUSE needs dir creation
     mount rootfs rootfs / rw remount
@@ -93,8 +65,10 @@ on post-fs-data
     mkdir /data/misc/dhcp 0770 dhcp dhcp
     chown dhcp dhcp /data/misc/dhcp
 
+    mkdir /data/misc/wminput 0776 system system
+
     # we will remap this as /mnt/sdcard with the sdcard fuse tool
-    mkdir /data/media 0770 media_rw media_rw
+    mkdir /data/media 0777 media_rw media_rw
     chown media_rw media_rw /data/media
 
     # Set indication (checked by vold) that we have finished this action
@@ -143,8 +117,6 @@ on boot
     chmod 664 /sys/bus/iio/devices/device0/lux
     chmod 664 /sys/bus/iio/devices/device0/proxim_ir
 
-# 4.3 requires
-    chmod 0644 /proc/cmdline
 
 # Power management settings
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 216000
@@ -154,27 +126,30 @@ on boot
     write /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq 1000000
     write /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor interactive
     write /sys/devices/system/cpu/cpufreq/interactive/go_maxspeed_load 80
+    
+    # sleep freeze workaround
+    # write /sys/module/cpuidle/parameters/lp2_in_idle 1
 
 # GPS
     mkdir /data/gps
-    chown system system /data/gps
-    chmod 770 /data/gps
+    chown gps system /data/gps
+    chmod 774 /data/gps
     chown gps system /dev/ttyHS3
     chmod 0664 /dev/ttyHS3
 
 # GPS power gpio
-    write /sys/class/gpio/export 171
-    write /sys/class/gpio/gpio171/value 0
-    write /sys/class/gpio/gpio171/direction out
-    chown gps system /sys/class/gpio/gpio171/value
-    chmod 0664 /sys/class/gpio/gpio171/value
+    write /sys/class/gpio/export 203 
+    write /sys/class/gpio/gpio203/value 0
+    write /sys/class/gpio/gpio203/direction out
+    chown gps system /sys/class/gpio/gpio203/value
+    chmod 0664 /sys/class/gpio/gpio203/value
 
 # Default Read Ahead value for sdcards
     write /sys/block/mmcblk0/queue/read_ahead_kb 2048
     write /sys/block/mmcblk1/queue/read_ahead_kb 2048
 
 service wpa_supplicant /system/bin/wpa_supplicant \
-    -Dnl80211 -iwlan0 -c/data/misc/wifi/wpa_supplicant.conf -e/data/misc/wifi/entropy.bin \
+    -Dnl80211 -iwlan0 -puse_p2p_group_interface=1 -c/data/misc/wifi/wpa_supplicant.conf -e/data/misc/wifi/entropy.bin \
     -I/system/etc/wifi/wpa_supplicant_overlay.conf \
     -O/data/misc/wifi/sockets \
     -g@android:wpa_wlan0
@@ -189,11 +164,14 @@ service wpa_supplicant /system/bin/wpa_supplicant \
 
 service p2p_supplicant /system/bin/wpa_supplicant \
     -Dnl80211 -iwlan0 -c/data/misc/wifi/wpa_supplicant.conf \
-    -I/system/etc/wifi/wpa_supplicant_overlay.conf -N \
-    -ip2p0 -Dnl80211 -c/data/misc/wifi/p2p_supplicant.conf \
-    -I/system/etc/wifi/p2p_supplicant_overlay.conf \
-    -e/data/misc/wifi/entropy.bin -puse_p2p_group_interface=1 \
-    -O/data/misc/wifi/sockets -g@android:wpa_wlan0
+    -I/system/etc/wifi/wpa_supplicant_overlay.conf \
+    -O/data/misc/wifi/sockets \
+    -g@android:wpa_wlan0
+#    -N \
+#    -ip2p0 -Dnl80211 -c/data/misc/wifi/p2p_supplicant.conf \
+#    -I/system/etc/wifi/p2p_supplicant_overlay.conf \
+#    -puse_p2p_group_interface=1 -e/data/misc/wifi/entropy.bin
+#    -g@android:wpa_wlan0
 #   we will start as root and wpa_supplicant will switch to user wifi
 #   after setting up the capabilities required for WEXT
 #   user wifi
@@ -247,6 +225,40 @@ service iprenew_eth0 /system/bin/dhcpcd -n
     disabled
     oneshot
 
+
+# virtual sdcard daemon running as media_rw (1023)
+service sdcard /system/bin/sdcard -u 1023 -g 1023 -l /data/media /mnt/shell/emulated
+    class late_start
+
+#service fuse_sdcard0 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard0 /storage/sdcard0
+#    class late_start
+#    disabled
+
+service fuse_sdcard1 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard1 /storage/sdcard1
+    class late_start
+    disabled
+
+service fuse_sdcard2 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard2 /storage/sdcard2
+    class late_start
+    disabled
+
+service fuse_usbdisk0 /system/bin/sdcard -u 1023 -g 1023 /mnt/media_rw/usbdisk0 /storage/usbdisk0
+    class late_start
+    disabled
+
+service fuse_usbdisk1 /system/bin/sdcard -u 1023 -g 1023 /mnt/media_rw/usbdisk1 /storage/usbdisk1
+    class late_start
+    disabled
+
+#on property:ro.fuse_sdcard=true
+#    start sdcard
+
+# This will make sure that sdcard service starts as late_start.
+#on nonencrypted
+#    setprop ro.fuse_sdcard ${persist.fuse_sdcard}
+
+#on property:vold.decrypt=trigger_restart_framework
+#    setprop ro.fuse_sdcard ${persist.fuse_sdcard}
 
 # Enable tcpdump-service
 #service netdump-service /system/xbin/tcpdump -i any -C 5 -p -s 0 -w /sdcard/netdump.cap
@@ -303,4 +315,6 @@ on property:init.svc.bootanim=stopped
     class_start postbootinit
 
 on property:init.svc.vold=running
+    start sdcard
     start adam_preboot
+    
