@@ -131,9 +131,6 @@ on boot
     write /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor interactive
     write /sys/devices/system/cpu/cpufreq/interactive/go_maxspeed_load 80
     
-    # sleep freeze workaround
-    # write /sys/module/cpuidle/parameters/lp2_in_idle 1
-
 # GPS
     mkdir /data/gps
     chown gps system /data/gps
@@ -153,7 +150,7 @@ on boot
     write /sys/block/mmcblk1/queue/read_ahead_kb 2048
 
 service wpa_supplicant /system/bin/wpa_supplicant \
-    -Dnl80211 -iwlan0 -puse_p2p_group_interface=1 -c/data/misc/wifi/wpa_supplicant.conf -e/data/misc/wifi/entropy.bin \
+    -Dnl80211 -iwlan0 -c/data/misc/wifi/wpa_supplicant.conf -e/data/misc/wifi/entropy.bin \
     -I/system/etc/wifi/wpa_supplicant_overlay.conf \
     -O/data/misc/wifi/sockets \
     -g@android:wpa_wlan0
@@ -168,14 +165,11 @@ service wpa_supplicant /system/bin/wpa_supplicant \
 
 service p2p_supplicant /system/bin/wpa_supplicant \
     -Dnl80211 -iwlan0 -c/data/misc/wifi/wpa_supplicant.conf \
-    -I/system/etc/wifi/wpa_supplicant_overlay.conf \
-    -O/data/misc/wifi/sockets \
-    -g@android:wpa_wlan0
-#    -N \
-#    -ip2p0 -Dnl80211 -c/data/misc/wifi/p2p_supplicant.conf \
-#    -I/system/etc/wifi/p2p_supplicant_overlay.conf \
-#    -puse_p2p_group_interface=1 -e/data/misc/wifi/entropy.bin
-#    -g@android:wpa_wlan0
+    -I/system/etc/wifi/wpa_supplicant_overlay.conf -N \
+    -ip2p0 -Dnl80211 -c/data/misc/wifi/p2p_supplicant.conf \
+    -I/system/etc/wifi/p2p_supplicant_overlay.conf \
+    -e/data/misc/wifi/entropy.bin -puse_p2p_group_interface=1 \
+    -O/data/misc/wifi/sockets -g@android:wpa_wlan0
 #   we will start as root and wpa_supplicant will switch to user wifi
 #   after setting up the capabilities required for WEXT
 #   user wifi
@@ -224,7 +218,7 @@ service iprenew_eth0 /system/bin/dhcpcd -n
     disabled
     oneshot
 
-service iprenew_eth0 /system/bin/dhcpcd -n
+service iprenew_bt-pan /system/bin/dhcpcd -n
     class main
     disabled
     oneshot
