@@ -17,7 +17,6 @@ on init
     mkdir /storage/usbdisk1 0000 system system
     mkdir /mnt/media_rw/usbdisk1 0700 media_rw media_rw
 
-    mkdir /storage/sdcard0 0700 root root
     mkdir /storage/sdcard1 0700 root root
     mkdir /storage/sdcard2 0700 root root
     mkdir /storage/usbdisk0 0700 root root
