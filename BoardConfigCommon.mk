@@ -143,6 +143,9 @@ SENSORS_NEED_SETRATE_ON_ENABLE := true
 # Misc flags
 COMMON_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS
 
+# Override healthd HAL
+BOARD_HAL_STATIC_LIBRARIES := libhealthd.harmony
+
 # Preload bootanimation in to memory
 TARGET_BOOTANIMATION_PRELOAD := true
 TARGET_BOOTANIMATION_TEXTURE_CACHE := true
