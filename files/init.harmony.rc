@@ -4,14 +4,25 @@ on early-init
     mount debugfs debugfs /sys/kernel/debug
 
 on init
-    mkdir /mnt/media_rw 0777 media_rw media_rw
-    mkdir /mnt/media_rw/sdcard1 0777 media_rw media_rw
-    mkdir /mnt/media_rw/sdcard2 0777 media_rw media_rw
-    mkdir /mnt/media_rw/usbdisk0 0777 media_rw media_rw
-    mkdir /mnt/media_rw/usbdisk1 0777 media_rw media_rw
     mkdir /mnt/shell/emulated 0700 shell shell
-    mkdir /storage 0775 system sdcard_rw
+    mkdir /storage 0550 system sdcard_r
     mkdir /storage/emulated 0555 root root
+
+    #External storage directories
+    mkdir /mnt/media_rw/sdcard0 0700 media_rw media_rw
+    mkdir /mnt/media_rw/sdcard1 0700 media_rw media_rw
+    mkdir /mnt/media_rw/sdcard2 0700 media_rw media_rw
+    mkdir /storage/usbdisk0 0000 system system
+    mkdir /mnt/media_rw/usbdisk0 0700 media_rw media_rw
+    mkdir /storage/usbdisk1 0000 system system
+    mkdir /mnt/media_rw/usbdisk1 0700 media_rw media_rw
+
+    mkdir /storage/sdcard0 0700 root root
+    mkdir /storage/sdcard1 0700 root root
+    mkdir /storage/sdcard2 0700 root root
+    mkdir /storage/usbdisk0 0700 root root
+    mkdir /storage/usbdisk1 0700 root root
+
     export EXTERNAL_STORAGE /storage/emulated/legacy
     export SECONDARY_STORAGE /storage/sdcard1:/storage/sdcard2:/storage/usbdisk0:/storage/usbdisk1
 
@@ -23,31 +34,25 @@ on init
     symlink /storage/emulated/legacy /mnt/sdcard
     symlink /storage/emulated/legacy /storage/sdcard0
     symlink /mnt/shell/emulated/0 /storage/emulated/legacy
-    #symlink /mnt/shell/emulated/0 /storage/emulated/0
-
-    # make the pathes for the external media mounts
-    mkdir /storage/sdcard1 0000 system system
-    mkdir /storage/sdcard2 0000 system system
-    mkdir /storage/usbdisk0 0000 system system
-    mkdir /storage/usbdisk1 0000 system system
 
     # for backwards compatibility
-    symlink /storage/usbdisk0 /mnt/usbdisk0
-    symlink /storage/usbdisk1 /mnt/usbdisk1
-    symlink /mnt/usbdisk0 /usbdisk0
-    symlink /mnt/usbdisk1 /usbdisk1
     symlink /storage/sdcard1 /internal_sd
     symlink /storage/sdcard1 /mnt/internal_sd
     symlink /storage/sdcard2 /microsd
     symlink /storage/sdcard2 /mnt/microsd
+    symlink /storage/usbdisk0 /usbdisk0
+    symlink /storage/usbdisk0 /mnt/usbdisk0
+    symlink /storage/usbdisk1 /usbdisk1
+    symlink /storage/usbdisk1 /mnt/usbdisk1
     
+
     # Save bugreports as owner
     export BUGREPORT_WRITE_PATH /mnt/shell/sdcard0/0
     export BUGREPORT_READ_PATH /storage/sdcard0
 
 on fs
     mount_all /fstab.harmony
-    # mount ext3 /dev/block/mmcblk0p2 /data wait noatime nosuid nodev
+    # Mount cache and system yaffs2 partitions here
     mount yaffs2 mtd@cache /cache nosuid nodev
     mount yaffs2 mtd@system /system
     
