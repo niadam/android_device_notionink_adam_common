@@ -462,17 +462,17 @@ static int gpslib_init(GpsCallbacks* callbacks) {
 		goto end;
 	}
 
-	if (gps_pfd == -1) {
-		gps_pfd = open(GPS_POWER_CTRL, O_WRONLY);
-		if (gps_pfd == -1) {
-			ret = -1;
-			LOGE("Power control: open failed: %s. GPS will not be activated.", GPS_POWER_CTRL);
-			status->size = sizeof (GpsStatus);
-			status->status = GPS_STATUS_ENGINE_OFF;
-			adamGpsCallbacks->create_thread_cb("adamgps-status", updateStatus, status);
-			goto end;
-		}
-	}
+//	if (gps_pfd == -1) {
+//		gps_pfd = open(GPS_POWER_CTRL, O_WRONLY);
+//		if (gps_pfd == -1) {
+//			ret = -1;
+//			LOGE("Power control: open failed: %s. GPS will not be activated.", GPS_POWER_CTRL);
+//			status->size = sizeof (GpsStatus);
+//			status->status = GPS_STATUS_ENGINE_OFF;
+//			adamGpsCallbacks->create_thread_cb("adamgps-status", updateStatus, status);
+//			goto end;
+//		}
+//	}
 	status->size = sizeof(GpsStatus);
 	status->status = GPS_STATUS_ENGINE_ON;
 	adamGpsCallbacks->create_thread_cb("adamgps-status", updateStatus, status);
