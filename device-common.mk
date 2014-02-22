@@ -45,7 +45,7 @@ PRODUCT_COPY_FILES := \
 
 # Modules
 PRODUCT_COPY_FILES += \
-    device/notionink/adam_common/modules/scsi_wait_scan.ko:system/lib/modules/scsi_wait_scan.ko \
+    device/notionink/adam_common/modules/scsi_wait_scan.ko:system/lib/modules/scsi_wait_scan.ko #\
    #device/notionink/adam_common/modules/tun.ko:system/lib/modules/tun.ko
 
 # Bluetooth
@@ -54,7 +54,7 @@ PRODUCT_COPY_FILES += \
 
 # Bluetooth config files
 PRODUCT_COPY_FILES += \
-    device/notionink/adam_common/files/bt_vendor.conf:system/etc/bluetooth/bt_vendor.conf \
+    device/notionink/adam_common/files/bt_vendor.conf:system/etc/bluetooth/bt_vendor.conf
 	
 # Touchscreen
 PRODUCT_COPY_FILES += \
@@ -118,6 +118,7 @@ PRODUCT_PACKAGES += \
 # These are the hardware-specific feature permissions
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/tablet_core_hardware.xml:system/etc/permissions/tablet_core_hardware.xml \
+    frameworks/native/data/etc/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml \
     frameworks/native/data/etc/android.hardware.camera.xml:system/etc/permissions/android.hardware.camera.xml \
     frameworks/native/data/etc/android.hardware.camera.front.xml:system/etc/permissions/android.hardware.camera.front.xml \
     frameworks/native/data/etc/android.hardware.location.xml:system/etc/permissions/android.hardware.location.xml \
