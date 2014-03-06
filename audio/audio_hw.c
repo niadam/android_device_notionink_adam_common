@@ -387,7 +387,7 @@ static int start_input_stream(struct stream_in *in)
         pthread_mutex_unlock(&out->lock);
     }
 
-	ALOGD("inpcm open: card=%d, device=%d, rate=%d", PCM_CARD, device, adev->active_out->pcm_config->rate);
+	ALOGD("inpcm open: card=%d, device=%d, rate=%d", PCM_CARD, device, adev && adev->active_out && adev->active_out->pcm_config? adev->active_out->pcm_config->rate : 0);
 
     in->pcm = pcm_open(PCM_CARD, device, PCM_IN, in->pcm_config);
 
