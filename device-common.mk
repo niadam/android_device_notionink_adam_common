@@ -113,7 +113,8 @@ PRODUCT_PACKAGES += \
 	#hwcomposer.tegra
 
 PRODUCT_PACKAGES += \
-	librs_jni
+	librs_jni \
+	libemoji
         
 # These are the hardware-specific feature permissions
 PRODUCT_COPY_FILES += \
