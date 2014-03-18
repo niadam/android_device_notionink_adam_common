@@ -17,6 +17,8 @@
 # This variable is set first, so it can be overridden
 # by BoardConfigVendor.mk
 
+BOARD_ADAM := true
+
 # Skip droiddoc build to save build time
 BOARD_SKIP_ANDROID_DOC_BUILD := true
 

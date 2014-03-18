@@ -1,5 +1,7 @@
 # hardware/libadam_gps/Android.mk
 
+ifeq  ($(strip $(BOARD_ADAM)),true)
+
   LOCAL_PATH := $(call my-dir)/nmea
 
   include $(CLEAR_VARS)
@@ -53,3 +55,5 @@
   
   LOCAL_PRELINK_MODULE := false
   include $(BUILD_SHARED_LIBRARY)
+
+endif

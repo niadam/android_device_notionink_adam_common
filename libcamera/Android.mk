@@ -1,3 +1,4 @@
+ifeq  ($(strip $(BOARD_ADAM)),true)
 BUILD_OLD_LIBCAMERA:=
 
 ifneq ($(BUILD_TINY_ANDROID),true)
@@ -31,3 +32,4 @@ include $(BUILD_SHARED_LIBRARY)
 
 endif # not BUILD_TINY_ANDROID
 
+endif

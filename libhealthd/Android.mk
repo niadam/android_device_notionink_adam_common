@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+ifeq  ($(strip $(BOARD_ADAM)),true)
 
 LOCAL_PATH := $(call my-dir)
 
@@ -21,3 +22,4 @@ LOCAL_SRC_FILES := healthd_board_harmony.cpp
 LOCAL_MODULE := libhealthd.harmony
 LOCAL_C_INCLUDES := system/core/healthd
 include $(BUILD_STATIC_LIBRARY)
+endif
