@@ -18,7 +18,7 @@
 
 #define  LOG_TAG  "gps_adam"
 #define GPS_TTYPORT "/dev/ttyHS3"
-#define GPS_POWER_CTRL	"/sys/class/gpio/gpio171/value"
+#define GPS_POWER_CTRL	"/sys/devices/platform/smba1006-pm-gps/power_on"
 #define MAX_NMEA_CHARS 85
 
 

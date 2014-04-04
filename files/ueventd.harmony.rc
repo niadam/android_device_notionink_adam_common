@@ -27,3 +27,6 @@
 
 # For USB 3G modems
 /dev/ttyUSB* 0777   radio system
+
+# For GPS
+/sys/devices/platform/smba1006-pm-gps/power_on 0666 gps system
