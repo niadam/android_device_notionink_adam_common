@@ -60,6 +60,10 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     device/notionink/adam_common/files/at168_touch.idc:system/usr/idc/at168_touch.idc 
 
+# GPIO Keys
+PRODUCT_COPY_FILES += \
+    device/notionink/adam_common/files/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl
+
 # Graphics
 PRODUCT_COPY_FILES += \
     device/notionink/adam_common/files/media_profiles.xml:system/etc/media_profiles.xml
@@ -77,8 +81,8 @@ PRODUCT_COPY_FILES += \
      device/notionink/adam_common/files/audio_policy.conf:system/etc/audio_policy.conf
 
 # APNs list
-PRODUCT_COPY_FILES += \
-   device/notionink/adam_common/files/apns-conf.xml:system/etc/apns-conf.xml
+#PRODUCT_COPY_FILES += \
+#   device/notionink/adam_common/files/apns-conf.xml:system/etc/apns-conf.xml
 
 PRODUCT_COPY_FILES += \
    device/notionink/adam_common/files/adam_preboot.sh:system/etc/adam_preboot.sh
