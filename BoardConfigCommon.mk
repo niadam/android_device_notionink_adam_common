@@ -24,6 +24,8 @@ BOARD_SKIP_ANDROID_DOC_BUILD := true
 
 # Devices asserts
 TARGET_OTA_ASSERT_DEVICE := adam,adam_3g,adam_recovery
+# Don't include backuptools
+WITH_GMS := true
 
 # Use the non-open-source parts, if they're present
 -include vendor/notionink/adam/BoardConfigVendor.mk
