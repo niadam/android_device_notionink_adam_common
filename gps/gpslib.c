@@ -462,17 +462,17 @@ static int gpslib_init(GpsCallbacks* callbacks) {
 		goto end;
 	}
 
-//	if (gps_pfd == -1) {
-//		gps_pfd = open(GPS_POWER_CTRL, O_WRONLY);
-//		if (gps_pfd == -1) {
-//			ret = -1;
-//			LOGE("Power control: open failed: %s. GPS will not be activated.", GPS_POWER_CTRL);
-//			status->size = sizeof (GpsStatus);
-//			status->status = GPS_STATUS_ENGINE_OFF;
-//			adamGpsCallbacks->create_thread_cb("adamgps-status", updateStatus, status);
-//			goto end;
-//		}
-//	}
+	if (gps_pfd == -1) {
+		gps_pfd = open(GPS_POWER_CTRL, O_WRONLY);
+		if (gps_pfd == -1) {
+			ret = -1;
+			LOGE("Power control: open failed: %s. GPS will not be activated.", GPS_POWER_CTRL);
+			status->size = sizeof (GpsStatus);
+			status->status = GPS_STATUS_ENGINE_OFF;
+			adamGpsCallbacks->create_thread_cb("adamgps-status", updateStatus, status);
+			goto end;
+		}
+	}
 	status->size = sizeof(GpsStatus);
 	status->status = GPS_STATUS_ENGINE_ON;
 	adamGpsCallbacks->create_thread_cb("adamgps-status", updateStatus, status);
@@ -512,11 +512,12 @@ static void gpslib_cleanup() {
 	stat->size = sizeof(GpsStatus);
 	stat->status = GPS_STATUS_ENGINE_OFF;
 	
-/*	if (gps_pfd != -1) {
+	if (gps_pfd != -1) {
+		gps_power(0);
 		close(gps_pfd);
 		gps_pfd = -1;
 	}
-*/	
+	
 	adamGpsCallbacks->create_thread_cb("adamgps-status", updateStatus, stat);
 	LOGV("GPS clean");
 	return;
