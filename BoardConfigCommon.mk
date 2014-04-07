@@ -49,7 +49,8 @@ TARGET_ARCH_VARIANT := armv7-a
 TARGET_ARCH_VARIANT_CPU := cortex-a9
 TARGET_ARCH_VARIANT_FPU := vfpv3-d16
 TARGET_CPU_SMP := true
-TARGET_CPU_VARIANT := generic
+TARGET_CPU_VARIANT := tegra2
+ARCH_ARM_HAVE_NEON := false
 
 #TARGET_BOARD_INFO_FILE := device/notionink/adam_common/board-info.txt
 
