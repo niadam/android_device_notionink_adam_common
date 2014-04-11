@@ -188,3 +188,6 @@ $(call inherit-product-if-exists, hardware/broadcom/wlan/bcmdhd/firmware/bcm4329
 
 $(call inherit-product, frameworks/native/build/tablet-dalvik-heap.mk)
 $(call inherit-product, vendor/notionink/adam/device-vendor.mk)
+
+# Use custom resized to 1024x600 bootanimation
+PRODUCT_BOOTANIMATION := device/notionink/adam_common/files/1024_bootanimation.zip:system/media/bootanimation.zip
