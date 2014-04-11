@@ -24,6 +24,9 @@
 #include <android/log.h>
 //#include <linux/akm8975.h>
 
+#define ECOMPASS_IOM    'e'
+#define ECOMPASS_IOC_SET_MFLAG          _IOW(ECOMPASS_IOM, 0x13, short)
+
 #include <cutils/log.h>
 
 #include "MagneticSensor.h"
@@ -58,7 +61,11 @@ MagneticSensor::~MagneticSensor() {
 int MagneticSensor::enable(int32_t handle, int en)
 {
      int flags = en ? 1 : 0;
+     int fd, res;
      mEnabled = en;
+     fd = open("/dev/ecompass_ctrl", O_RDWR);
+     res = ioctl(fd, ECOMPASS_IOC_SET_MFLAG, &flags);
+     close(fd);
   return 0;
 }
 

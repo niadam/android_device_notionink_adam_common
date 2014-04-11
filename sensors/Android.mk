@@ -29,7 +29,8 @@ LOCAL_SRC_FILES := 						\
 				SensorBase.cpp			\
 				AccelerationSensor.cpp		\
 				LightSensor.cpp			\
-				MagneticSensor.cpp
+				MagneticSensor.cpp		\
+				OrientationSensor.cpp
 
 
 LOCAL_MODULE_PATH := $(TARGET_OUT_SHARED_LIBRARIES)/hw

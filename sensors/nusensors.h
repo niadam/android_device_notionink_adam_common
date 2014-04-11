@@ -41,7 +41,7 @@ int init_nusensors(hw_module_t const* module, hw_device_t** device);
 #define ID_A  (0)
 #define ID_M  (1)
 #define ID_L  (2)
-
+#define ID_O  (3)
 
 /*****************************************************************************/
 
@@ -54,15 +54,16 @@ int init_nusensors(hw_module_t const* module, hw_device_t** device);
 #define MAGNETIC_DEVICE_NAME        "/sys/devices/virtual/magnetic/mmc31xx/read_mag"
 #define ACCELEROMETER_DEVICE_NAME   "/dev/kxtf9"
 #define LIGHTING_DEVICE_NAME        "/sys/bus/iio/devices/device0/lux"
+#define ORIENTATION_DEVICE_NAME     "/dev/ecompass_ctrl"
 
 #define EVENT_TYPE_ACCEL_X          ABS_X
 #define EVENT_TYPE_ACCEL_Y          ABS_Y
 #define EVENT_TYPE_ACCEL_Z          ABS_Z
 
-#define EVENT_TYPE_YAW              REL_RX
-#define EVENT_TYPE_PITCH            REL_RY
-#define EVENT_TYPE_ROLL             REL_RZ
-#define EVENT_TYPE_ORIENT_STATUS    REL_HWHEEL
+#define EVENT_TYPE_YAW              ABS_RX
+#define EVENT_TYPE_PITCH            ABS_RY
+#define EVENT_TYPE_ROLL             ABS_RZ
+#define EVENT_TYPE_ORIENT_STATUS    ABS_RUDDER
 
 #define EVENT_TYPE_MAGV_X           REL_DIAL
 #define EVENT_TYPE_MAGV_Y           REL_WHEEL
@@ -85,10 +86,11 @@ int init_nusensors(hw_module_t const* module, hw_device_t** device);
 #define CONVERT_M_Y                 (CONVERT_M)
 #define CONVERT_M_Z                 (CONVERT_M)
 
-#define CONVERT_O                   (1.0f/64.0f)
-#define CONVERT_O_Y                 (CONVERT_O)
+/* conversion of orientation data to degree units */
+#define CONVERT_O                   (360.0f/65536.0f)
+#define CONVERT_O_A                 (CONVERT_O)
 #define CONVERT_O_P                 (CONVERT_O)
-#define CONVERT_O_R                 (-CONVERT_O)
+#define CONVERT_O_R                 (CONVERT_O)
 
 #define CONVERT_B                   (1.0f/100.0f)
 

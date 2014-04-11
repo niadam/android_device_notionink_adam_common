@@ -23,6 +23,10 @@
 #include <sys/select.h>
 
 //#include <linux/kxtf9.h>
+/* Use 'e' as magic number */
+//#define ECOMPASS_IOM    'e'
+//#define ECOMPASS_IOC_SET_AFLAG          _IOW(ECOMPASS_IOM, 0x10, short)
+#include "mecs.h"
 
 #include <cutils/log.h>
 
@@ -62,6 +66,7 @@ int AccelerationSensor::enable(int32_t, int en)
 {
     int flags = en ? 1 : 0;
     int err = 0;
+    int fd, res;
     if (flags != mEnabled) {
         // don't turn the accelerometer off, if the orientation
         // sensor is enabled
@@ -71,6 +76,9 @@ int AccelerationSensor::enable(int32_t, int en)
         }
         mEnabled = flags;
 
+    fd = open("/dev/ecompass_ctrl", O_RDWR);
+    res = ioctl(fd, ECOMPASS_IOC_SET_AFLAG, &flags);
+    close(fd);
 /*        if (flags) {
             open_device();
         }

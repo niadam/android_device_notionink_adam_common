@@ -32,6 +32,7 @@
 #include "AccelerationSensor.h"
 #include "LightSensor.h"
 #include "MagneticSensor.h"
+#include "OrientationSensor.h"
 
 /*****************************************************************************/
 
@@ -48,7 +49,8 @@ private:
     enum {
 	acceleration    = 0,
 	light           = 1,
-	magnetic		= 2,
+	magnetic	= 2,
+        orientation     = 3,
         numSensorDrivers,
         numFds,
     };
@@ -67,6 +69,8 @@ private:
                 return magnetic;
             case ID_L:
                 return light;
+            case ID_O:
+                return orientation;
         }
         return -EINVAL;
     }
@@ -90,6 +94,11 @@ sensors_poll_context_t::sensors_poll_context_t()
     mPollFds[magnetic].fd = mSensors[magnetic]->getFd();
     mPollFds[magnetic].events = POLLIN;
     mPollFds[magnetic].revents = 0;
+
+    mSensors[orientation] = new OrientationSensor();
+    mPollFds[orientation].fd = mSensors[orientation]->getFd();
+    mPollFds[orientation].events = POLLIN;
+    mPollFds[orientation].revents = 0;
 
     int wakeFds[2];
     int result = pipe(wakeFds);

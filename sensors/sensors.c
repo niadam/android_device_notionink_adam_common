@@ -38,7 +38,11 @@ static const struct sensor_t sSensorList[] = {
 	{ "MMC31xx 3-axis Magnetic field sensor",
                 "Memsic",
                 1, SENSORS_HANDLE_BASE+ID_M,
-                SENSOR_TYPE_MAGNETIC_FIELD, 800.0f, 100.0/512.0 , 6.8f, 30000, 0, 0, { } }
+                SENSOR_TYPE_MAGNETIC_FIELD, 800.0f, 100.0/512.0 , 6.8f, 30000, 0, 0, { } },
+	{ "MEMSIC Combo Orientation Sensor",
+          "MEMSIC Sensortec",
+                1, SENSORS_HANDLE_BASE+ID_O,
+                SENSOR_TYPE_ORIENTATION,  360.0f, CONVERT_O, 7.8f, 30000, 0, 0, { } }
 };
 
 static int open_sensors(const struct hw_module_t* module, const char* name,
