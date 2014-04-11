@@ -27,3 +27,8 @@
 
 # For USB 3G modems
 /dev/ttyUSB* 0777   radio system
+
+# Sensors
+/dev/mmc31xx            0666  root      system
+/dev/ecompass_ctrl      0666  root      system
+/sys/devices/platform/lis3lv02d/position 0666 root system
