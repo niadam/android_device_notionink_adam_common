@@ -24,6 +24,8 @@ BOARD_SKIP_ANDROID_DOC_BUILD := true
 
 # Devices asserts
 TARGET_OTA_ASSERT_DEVICE := adam,adam_3g,adam_recovery
+# Don't include backuptools
+WITH_GMS := true
 
 # Use the non-open-source parts, if they're present
 -include vendor/notionink/adam/BoardConfigVendor.mk
@@ -47,7 +49,8 @@ TARGET_ARCH_VARIANT := armv7-a
 TARGET_ARCH_VARIANT_CPU := cortex-a9
 TARGET_ARCH_VARIANT_FPU := vfpv3-d16
 TARGET_CPU_SMP := true
-TARGET_CPU_VARIANT := generic
+TARGET_CPU_VARIANT := tegra2
+ARCH_ARM_HAVE_NEON := false
 
 #TARGET_BOARD_INFO_FILE := device/notionink/adam_common/board-info.txt
 
@@ -144,6 +147,7 @@ BOARD_USES_GENERIC_INVENSENSE := false
 # Sensors
 TARGET_USES_OLD_LIBSENSORS_HAL := false
 BOARD_HAVE_MAGNETIC_SENSOR := true
+BOARD_USE_LEGACY_TOUCHSCREEN := true
 
 # Compatibility with pre-kitkat Sensor HALs
 SENSORS_NEED_SETRATE_ON_ENABLE := true
@@ -155,11 +159,12 @@ COMMON_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS
 BOARD_HAL_STATIC_LIBRARIES := libhealthd.harmony
 
 # Recovery
+RECOVERY_NAME := Adam Tablet CWM-based Recovery
 RECOVERY_FSTAB_VERSION := 2
 TARGET_RECOVERY_INITRC := device/notionink/adam_common/recovery/init.rc
 TARGET_RECOVERY_FSTAB := device/notionink/adam_common/files/fstab.harmony
 # Large fonts
-BOARD_USE_CUSTOM_RECOVERY_FONT := \"roboto_23x41.h\"
+#BOARD_USE_CUSTOM_RECOVERY_FONT := \"roboto_15x24.h\"
 TARGET_RECOVERY_PIXEL_FORMAT := "RGB_565"
 BOARD_CUSTOM_RECOVERY_KEYMAPPING := ../../device/notionink/adam_common/recovery/recovery_keys.c
 BOARD_RECOVERY_SWIPE := true

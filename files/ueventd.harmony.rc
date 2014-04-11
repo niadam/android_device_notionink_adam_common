@@ -32,3 +32,6 @@
 /dev/mmc31xx            0666  root      system
 /dev/ecompass_ctrl      0666  root      system
 /sys/devices/platform/lis3lv02d/position 0666 root system
+
+# For GPS
+/sys/devices/platform/smba1006-pm-gps/power_on 0666 gps system
