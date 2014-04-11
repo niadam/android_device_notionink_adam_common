@@ -151,9 +151,9 @@ PRODUCT_PROPERTY_OVERRIDES += \
         persist.fuse_sdcard=true
 
 
-#Set default.prop properties for root + mtp
+#Set default.prop properties for root + mtp,adb
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
-	persist.sys.usb.config=mtp
+	persist.sys.usb.config=mtp,adb
 
 #PRODUCT_PROPERTY_OVERRIDES += \
 #    ro.boot.selinux=disabled \
