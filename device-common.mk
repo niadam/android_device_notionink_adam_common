@@ -147,6 +147,9 @@ PRODUCT_PROPERTY_OVERRIDES += \
 	ro.opengles.version=131072 \
 	ro.opengles.surface.rgb565=true \
 	debug.hwui.render_dirty_regions=false \
+	ro.hwui.use_gpu_pixel_buffers=false \
+	# Disable hardware overlays and use GPU for screen compositing
+	debug.composition.type=gpu \
 	# GPU producer to CPU consumer not supported
 	ro.bq.gpu_to_cpu_unsupported=1 \
 	ro.zygote.disable_gl_preload=true \
