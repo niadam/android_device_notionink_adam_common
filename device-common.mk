@@ -36,6 +36,7 @@ PRODUCT_LOCALES += mdpi
 # Adam/Harmony Configs
 PRODUCT_COPY_FILES := \
     $(LOCAL_KERNEL):kernel \
+    device/notionink/adam_common/files/init.rc:root/init.rc \
     device/notionink/adam_common/files/init.harmony.rc:root/init.harmony.rc \
     device/notionink/adam_common/files/init.harmony.usb.rc:root/init.harmony.usb.rc \
     device/notionink/adam_common/files/ueventd.harmony.rc:root/ueventd.harmony.rc \

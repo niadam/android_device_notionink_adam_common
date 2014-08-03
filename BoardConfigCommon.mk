@@ -67,6 +67,9 @@ USE_ALL_OPTIMIZED_STRING_FUNCS := true
 BOARD_MALLOC_ALIGNMENT := 16
 TARGET_EXTRA_CFLAGS := $(call cc-option,-mtune=cortex-a9) $(call cc-option,-mcpu=cortex-a9)
 
+# Ramdisk
+TARGET_PROVIDES_INIT_RC := true
+
 # Kernel   
 #TARGET_KERNEL_SOURCE := kernel/notionink/adam
 TARGET_KERNEL_CONFIG := tegra_smba1006_defconfig
