@@ -115,7 +115,7 @@ PRODUCT_PACKAGES += \
 	sensors.harmony \
 	lights.harmony \
 	gps.harmony \
-	power.tegra \
+	#power.tegra \
 	camera.tegra #\
 	#hwcomposer.tegra
 
