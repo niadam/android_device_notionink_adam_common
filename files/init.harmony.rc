@@ -94,6 +94,9 @@ on post-fs-data
     mkdir /data/media 0777 media_rw media_rw
     chown media_rw media_rw /data/media
 
+    # ** RC: usb devices resume not reset after sleep, also do not self suspend. write early **
+    write /sys/bus/usb/devices/usb1/power/control on
+
     # Set indication (checked by vold) that we have finished this action
     setprop vold.post_fs_data_done 1
 
@@ -179,6 +182,11 @@ on boot
     chmod 0660 /dev/cdc-wdm0
     chown radio radio /dev/cdc-wdm1
     chmod 0660 /dev/cdc-wdm1
+
+    # ril control auto-suspend  #RC addition: ver23
+    chmod 0660 /sys/bus/usb/devices/usb1/power/control
+    chown radio radio /sys/bus/usb/devices/usb1/power/control
+    write /sys/bus/usb/devices/usb1/power/control on  # RC: devices resumes not resets, not self suspend. apply earlier
 
 # Set NITZ Feature on or off
     setprop mbm.ril.config.nitz yes
