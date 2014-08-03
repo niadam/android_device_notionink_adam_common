@@ -140,8 +140,13 @@ on boot
     chmod 666 /dev/nvhost-isp
     chmod 666 /dev/nvhost-mpe
     chmod 666 /dev/nvhost-vi
+    chmod 664 /sys/bus/iio/devices/device0/illuminance0_input
     chmod 664 /sys/bus/iio/devices/device0/lux
+    chmod 664 /sys/bus/iio/devices/device0/proximity_raw
     chmod 664 /sys/bus/iio/devices/device0/proxim_ir
+    chown 666 /dev/mmc31xx
+    chown 666 /dev/ecompass_ctrl
+    chown 666 /sys/devices/platform/lis3lv02d/position
 
 # power
     chown system system /sys/module/cpu_tegra/parameters/cpu_user_cap
