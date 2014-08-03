@@ -13,23 +13,20 @@ on init
     export BUGREPORT_WRITE_PATH /storage/emulated/legacy/
     export BUGREPORT_READ_PATH  /mnt/shell/emulated
 
+    chown system sdcard_rw /storage
     mkdir /mnt/shell/emulated 0700 shell shell
-    mkdir /storage 0550 system sdcard_r
-    mkdir /storage/emulated 0555 root root
+    mkdir /storage/emulated 0755 media_rw media_rw
 
     #External storage directories
-    mkdir /mnt/media_rw/sdcard0 0700 media_rw media_rw
-    mkdir /mnt/media_rw/sdcard1 0700 media_rw media_rw
-    mkdir /mnt/media_rw/sdcard2 0700 media_rw media_rw
-    mkdir /storage/usbdisk0 0000 system system
-    mkdir /mnt/media_rw/usbdisk0 0700 media_rw media_rw
-    mkdir /storage/usbdisk1 0000 system system
-    mkdir /mnt/media_rw/usbdisk1 0700 media_rw media_rw
+    mkdir /mnt/media_rw/sdcard1 0750 media_rw media_rw
+    mkdir /mnt/media_rw/sdcard2 0750 media_rw media_rw
+    mkdir /storage/usbdisk0 0750 media_rw media_rw
+    mkdir /mnt/media_rw/usbdisk0 0750 media_rw media_rw
+    mkdir /storage/usbdisk1 0750 media_rw media_rw
+    mkdir /mnt/media_rw/usbdisk1 0750 media_rw media_rw
 
-    mkdir /storage/sdcard1 0700 root root
-    mkdir /storage/sdcard2 0700 root root
-    mkdir /storage/usbdisk0 0700 root root
-    mkdir /storage/usbdisk1 0700 root root
+    mkdir /storage/sdcard1 0750 media_rw media_rw
+    mkdir /storage/sdcard2 0750 media_rw media_rw
 
     # for backwards compatibility
     symlink /storage/emulated/legacy /sdcard
