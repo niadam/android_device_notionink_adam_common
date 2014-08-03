@@ -44,7 +44,10 @@ on init
     symlink /storage/usbdisk0 /mnt/usbdisk0
     symlink /storage/usbdisk1 /usbdisk1
     symlink /storage/usbdisk1 /mnt/usbdisk1
-    
+
+   # Create private mountpoint so we can MS_MOVE from staging  # RC ADD *******
+    mount tmpfs tmpfs /mnt/secure mode=0700,uid=0,gid=0
+
 on early-boot
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor interactive
     write /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor interactive
@@ -69,8 +72,6 @@ on fs
     mount yaffs2 mtd@cache /cache nosuid nodev
     mount yaffs2 mtd@system /system
     
-    setprop ro.crypto.tmpfs_options size=128m,mode=0771,uid=1000,gid=1000
-    setprop ro.crypto.umount_sd false
     setprop ro.crypto.fuse_sdcard true
     
 on post-fs
