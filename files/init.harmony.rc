@@ -49,6 +49,10 @@ on init
     mount tmpfs tmpfs /mnt/secure mode=0700,uid=0,gid=0
 
 on early-boot
+    
+# Set the SELinux system-wide enforcing status  # RC mod: "setenforce 0" BROKE it
+    setenforce 1                                # RC:    1 is implied value?
+
     write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor interactive
     write /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor interactive
     restorecon /sys/devices/system/cpu
