@@ -1,14 +1,12 @@
-# Copyright (C) 2012 The Android Open Source Project
+# Copyright (C) 2012 The Android Open Source Project  # RC mod:ver20
 #
 # IMPORTANT: Do not create world writable files or directories.
 # This is a common source of Android security bugs.
 #
-
 import /init.environ.rc
 import /init.usb.rc
 import /init.${ro.hardware}.rc
 import /init.trace.rc
-import /init.carrier.rc
 
 on early-init
     # Set init and its forked children's oom_adj.
@@ -48,24 +46,6 @@ loglevel 3
 # but someday that may change.
     symlink /system/vendor /vendor
 
-# Create cgroup mount point for cpu accounting
-    mkdir /acct
-    mount cgroup none /acct cpuacct
-    mkdir /acct/uid
-
-# Create cgroup mount point for memory
-    mount tmpfs none /sys/fs/cgroup mode=0750,uid=0,gid=1000
-    mkdir /sys/fs/cgroup/memory 0750 root system
-    mount cgroup none /sys/fs/cgroup/memory memory
-    write /sys/fs/cgroup/memory/memory.move_charge_at_immigrate 1
-    chown root system /sys/fs/cgroup/memory/tasks
-    chmod 0660 /sys/fs/cgroup/memory/tasks
-    mkdir /sys/fs/cgroup/memory/sw 0750 root system
-    write /sys/fs/cgroup/memory/sw/memory.swappiness 100
-    write /sys/fs/cgroup/memory/sw/memory.move_charge_at_immigrate 1
-    chown root system /sys/fs/cgroup/memory/sw/tasks
-    chmod 0660 /sys/fs/cgroup/memory/sw/tasks
-
     mkdir /system
     mkdir /data 0771 system system
     mkdir /cache 0771 system cache
@@ -74,10 +54,13 @@ loglevel 3
     # See storage config details at http://source.android.com/tech/storage/
     mkdir /mnt/shell 0700 shell shell
     mkdir /mnt/media_rw 0700 media_rw media_rw
-    mkdir /storage 0751 root sdcard_r
+    mkdir /storage 0550 system sdcard_rw            # RC change perms(0751)
 
     # Directory for putting things only root should see.
     mkdir /mnt/secure 0700 root root
+
+    # Create private mountpoint so we can MS_MOVE from staging  # RC ADD *******
+    mount tmpfs tmpfs /mnt/secure mode=0700,uid=0,gid=0
 
     # Directory for staging bindmounts
     mkdir /mnt/secure/staging 0700 root root
@@ -112,6 +95,24 @@ loglevel 3
     write /proc/sys/net/ipv4/ping_group_range "0 2147483647"
     write /proc/sys/kernel/sched_rt_runtime_us 950000
     write /proc/sys/kernel/sched_rt_period_us 1000000
+
+# Create cgroup mount point for cpu accounting
+    mkdir /acct
+    mount cgroup none /acct cpuacct
+    mkdir /acct/uid
+
+# Create cgroup mount point for memory
+    mount tmpfs none /sys/fs/cgroup mode=0750,uid=0,gid=1000
+    mkdir /sys/fs/cgroup/memory 0750 root system
+    mount cgroup none /sys/fs/cgroup/memory memory
+    write /sys/fs/cgroup/memory/memory.move_charge_at_immigrate 1
+    chown root system /sys/fs/cgroup/memory/tasks
+    chmod 0660 /sys/fs/cgroup/memory/tasks
+    mkdir /sys/fs/cgroup/memory/sw 0750 root system
+    write /sys/fs/cgroup/memory/sw/memory.swappiness 100
+    write /sys/fs/cgroup/memory/sw/memory.move_charge_at_immigrate 1
+    chown root system /sys/fs/cgroup/memory/sw/tasks
+    chmod 0660 /sys/fs/cgroup/memory/sw/tasks
 
 # Create cgroup mount points for process groups
     mkdir /dev/cpuctl
@@ -152,11 +153,6 @@ loglevel 3
 # checker programs.
     mkdir /dev/fscklogs 0770 root system
 
-# pstore/ramoops previous console log
-    mount pstore pstore /sys/fs/pstore
-    chown system log /sys/fs/pstore/console-ramoops
-    chmod 0440 /sys/fs/pstore/console-ramoops
-
 on post-fs
     # once everything is setup, no need to modify /
     mount rootfs rootfs / ro remount
@@ -166,12 +162,14 @@ on post-fs
     # We chown/chmod /cache again so because mount is run as root + defaults
     chown system cache /cache
     chmod 0771 /cache
+
     # We restorecon /cache in case the cache partition has been reset.
     restorecon /cache
 
     # This may have been created by the recovery system with odd permissions
     chown system cache /cache/recovery
     chmod 0770 /cache/recovery
+
     # This may have been created by the recovery system with the wrong context.
     restorecon /cache/recovery
 
@@ -236,7 +234,6 @@ on post-fs-data
     mkdir /data/misc/wifi/sockets 0770 wifi wifi
     mkdir /data/misc/wifi/wpa_supplicant 0770 wifi wifi
     mkdir /data/misc/dhcp 0770 dhcp dhcp
-    # give system access to wpa_supplicant.conf for backup and restore
     chmod 0660 /data/misc/wifi/wpa_supplicant.conf
     mkdir /data/local 0751 root root
     mkdir /data/misc/media 0700 media media
@@ -256,13 +253,9 @@ on post-fs-data
 
     # create dalvik-cache and double-check the perms, so as to enforce our permissions
     mkdir /data/dalvik-cache 0771 system system
-    chown system system /data/dalvik-cache
-    chmod 0771 /data/dalvik-cache
 
     # create resource-cache and double-check the perms
     mkdir /data/resource-cache 0771 system system
-    chown system system /data/resource-cache
-    chmod 0771 /data/resource-cache
 
     # create the lost+found directories, so as to enforce our permissions
     mkdir /data/lost+found 0770 root root
@@ -281,15 +274,12 @@ on post-fs-data
     # Separate location for storing security policy files on data
     mkdir /data/security 0711 system system
 
-    # Reload policy from /data/security if present.
+    # Reload policy from /data/security if present. # ( 1 )*** RCmod:disable # enable *******
     setprop selinux.reload_policy 1
 
     # Set SELinux security contexts on upgrade or policy update.
-    restorecon_recursive /data
+    restorecon /data    # RC not exist: restorecon_recursive
 
-    # If there is no fs-post-data action in the init.<device>.rc file, you
-    # must uncomment this line, otherwise encrypted filesystems
-    # won't work.
     # Set indication (checked by vold) that we have finished this action
     #setprop vold.post_fs_data_done 1
 
@@ -333,38 +323,11 @@ on boot
     chmod 0660 /sys/power/state
     chmod 0660 /sys/power/wake_lock
     chmod 0660 /sys/power/wake_unlock
+    chmod 0664 /sys/power/wait_for_fb_sleep  # RC mod ver19: use for cpufreq control?
+    chmod 0664 /sys/power/wait_for_fb_wake   # RC mod ver19:         kernel 3.1???
+    chown system system /sys/power/wait_for_fb_sleep                # RC mod
+    chown system system /sys/power/wait_for_fb_wake                 # RC mod
 
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/timer_rate
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/timer_rate
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/timer_slack
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/timer_slack
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/target_loads
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/target_loads
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/boost
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/boost
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/boostpulse
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/input_boost
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/input_boost
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/boostpulse_duration
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/boostpulse_duration
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/io_is_busy
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/io_is_busy
-
-    # Assume SMP uses shared cpufreq policy for all CPUs
-    chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-    chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-    chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
-    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq
 
     chown system system /sys/class/timed_output/vibrator/enable
     chown system system /sys/class/leds/keyboard-backlight/brightness
@@ -408,8 +371,12 @@ on boot
     write /proc/sys/net/core/rmem_max  2097152
     write /proc/sys/net/core/wmem_max  2097152
 
-# Define default initial receive window size in segments.
-    setprop net.tcp.default_init_rwnd 60
+# Set these so we can remotely update SELinux policy
+    chown system system /sys/fs/selinux/load
+    chown system system /sys/fs/selinux/enforce
+
+# Set this property so surfaceflinger is not started by system_init # **RC ADD try ...ok
+    setprop system_init.startsurfaceflinger 0
 
     class_start core
     class_start main
@@ -443,15 +410,18 @@ on property:vold.decrypt=trigger_shutdown_framework
 on property:sys.powerctl=*
     powerctl ${sys.powerctl}
 
-# system server cannot write to /proc/sys files,
-# and chown/chmod does not work for /proc/sys/ entries.
-# So proxy writes through init.
+# system server cannot write to /proc/sys files, so proxy it through init
 on property:sys.sysctl.extra_free_kbytes=*
     write /proc/sys/vm/extra_free_kbytes ${sys.sysctl.extra_free_kbytes}
-# "tcp_default_init_rwnd" Is too long!
-on property:sys.sysctl.tcp_def_init_rwnd=*
-    write /proc/sys/net/ipv4/tcp_default_init_rwnd ${sys.sysctl.tcp_def_init_rwnd}
 
+on property:selinux.reload_policy=1
+    restart ueventd
+    restart installd
+    chown -R system system /selinux/booleans
+    chown -R system system /sys/fs/selinux/booleans
+
+on property:ro.debuggable=1
+    start console
 
 ## Daemon processes to be run by init.
 ##
@@ -480,9 +450,6 @@ service console /system/bin/sh
 
 service auditd /system/bin/auditd -k
     class main
-
-on property:ro.debuggable=1
-    start console
 
 # adbd is controlled via property triggers in init.<platform>.usb.rc
 service adbd /sbin/adbd
@@ -563,14 +530,9 @@ service installd /system/bin/installd
     class main
     socket installd stream 600 system system
 
-service flash_recovery /system/etc/install-cm-recovery.sh
+service flash_recovery /system/etc/install-recovery.sh
     class main
-    disabled
     oneshot
-
-# update recovery if enabled
-on property:persist.sys.recovery_update=true
-    start flash_recovery
 
 service racoon /system/bin/racoon
     class main
@@ -610,3 +572,4 @@ service mdnsd /system/bin/mdnsd
     socket mdnsd stream 0660 mdnsr inet
     disabled
     oneshot
+

@@ -1,5 +1,5 @@
 import init.harmony.usb.rc
-
+#                                    RC mod: ver23c
 on early-init
     mount debugfs debugfs /sys/kernel/debug
 
@@ -8,15 +8,14 @@ on init
     export EMULATED_STORAGE_SOURCE /mnt/shell/emulated
     export EMULATED_STORAGE_TARGET /storage/emulated
     export SECONDARY_STORAGE /storage/sdcard1:/storage/sdcard2:/storage/usbdisk0:/storage/usbdisk1
-    export PRIMARY_STORAGE  /storage/emulated/legacy
+    export PRIMARY_STORAGE  /storage/emulated/legacy   # RC note: gets around issues
     # Save bugreports as owner
     export BUGREPORT_WRITE_PATH /storage/emulated/legacy/
     export BUGREPORT_READ_PATH  /mnt/shell/emulated
 
-    mkdir /storage 0550 system sdcard_rw
     chown system sdcard_rw /storage
     mkdir /mnt/shell/emulated 0700 shell shell
-    mkdir /storage/emulated 0755 media_rw media_rw
+    mkdir /storage/emulated 0750 media_rw media_rw # 0555 root root
 
     #External storage directories
     mkdir /mnt/media_rw/sdcard1 0750 media_rw media_rw
@@ -25,57 +24,28 @@ on init
     mkdir /mnt/media_rw/usbdisk0 0750 media_rw media_rw
     mkdir /storage/usbdisk1 0750 media_rw media_rw
     mkdir /mnt/media_rw/usbdisk1 0750 media_rw media_rw
-
-    mkdir /storage/sdcard1 0750 media_rw media_rw
+    mkdir /storage/sdcard1 0750 media_rw media_rw                # relax perms to allow access
     mkdir /storage/sdcard2 0750 media_rw media_rw
 
     # for backwards compatibility
     symlink /storage/emulated/legacy /sdcard
     symlink /storage/emulated/legacy /mnt/sdcard
-    symlink /storage/emulated/legacy /storage/sdcard0
-    symlink /mnt/shell/emulated/0 /storage/emulated/legacy
-
-    # for backwards compatibility
-    symlink /storage/sdcard1 /internal_sd
-    symlink /storage/sdcard1 /mnt/internal_sd
+    symlink /storage/sdcard1 /external_sd
+    symlink /storage/sdcard1 /mnt/external_sd
     symlink /storage/sdcard2 /microsd
     symlink /storage/sdcard2 /mnt/microsd
     symlink /storage/usbdisk0 /usbdisk0
     symlink /storage/usbdisk0 /mnt/usbdisk0
     symlink /storage/usbdisk1 /usbdisk1
     symlink /storage/usbdisk1 /mnt/usbdisk1
-
-   # Create private mountpoint so we can MS_MOVE from staging  # RC ADD *******
-    mount tmpfs tmpfs /mnt/secure mode=0700,uid=0,gid=0
-
-on early-boot
     
-# Set the SELinux system-wide enforcing status  # RC mod: "setenforce 0" BROKE it
-    setenforce 1                                # RC:    1 is implied value?
-
-    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor interactive
-    write /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor interactive
-    restorecon /sys/devices/system/cpu
-    restorecon /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/boost
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/boost_factor
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/go_maxspeed_load
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/input_boost
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/io_is_busy
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/max_boost
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/min_sample_time
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/sustain_load
-    restorecon /sys/devices/system/cpu/cpufreq/interactive/timer_rate
-
 on fs
     mount_all /fstab.harmony
     # Mount cache and system yaffs2 partitions here
     mount yaffs2 mtd@cache /cache nosuid nodev
     mount yaffs2 mtd@system /system
     
+    # setprop ro.crypto.tmpfs_options size=128m,mode=0771,uid=1000,gid=1000
     setprop ro.crypto.fuse_sdcard true
     
 on post-fs
@@ -83,26 +53,31 @@ on post-fs
     mount rootfs rootfs / rw remount
 
 on post-fs-data
-    mkdir /data/misc/wifi 0770 wifi wifi
-    mkdir /data/misc/wifi/sockets 0770 wifi wifi
-    mkdir /data/misc/dhcp 0770 dhcp dhcp
-    chown dhcp dhcp /data/misc/dhcp
+
+    # we will remap this as /mnt/sdcard with the sdcard fuse tool
+    mkdir /data/media 0775 media_rw media_rw
+
+    # ** RC: usb devices resume not reset after sleep, also do not self suspend. write early **
+    write /sys/bus/usb/devices/usb1/power/control on  
+
+    # Camera calibration                     # RC mod: add 
+    mkdir /data/misc/camera 0770 media media
+
+    # Magnetic calibration
+    mkdir /data/misc/magnetic_calibration 0770 media media
 
     # Wiimote connect status
     mkdir /data/misc/wminput 0776 system system
     write /data/misc/wminput/connected 0
     chmod 0666 /data/misc/wminput/connected
 
-    # we will remap this as /mnt/sdcard with the sdcard fuse tool
-    mkdir /data/media 0777 media_rw media_rw
-    chown media_rw media_rw /data/media
-
-    # ** RC: usb devices resume not reset after sleep, also do not self suspend. write early **
-    write /sys/bus/usb/devices/usb1/power/control on
-
     # Set indication (checked by vold) that we have finished this action
     setprop vold.post_fs_data_done 1
 
+on early-boot
+    
+# Set the SELinux system-wide enforcing status  # RC mod: "setenforce 0" BROKE it
+    setenforce 1                                # RC:    1 is implied value?
 
 on boot
 # PQi Permissions
@@ -122,13 +97,13 @@ on boot
     symlink /system/lib/hw/wlan/bcm4329B1.hcd /data/bcm4329B1.hcd
     chmod 0777 /data/bcm4329B1.hcd
 
-    # bluetooth LPM
+# bluetooth LPM
     chmod 0220 /proc/bluetooth/sleep/lpm
     chmod 0220 /proc/bluetooth/sleep/btwrite
     chown bluetooth net_bt_stack /proc/bluetooth/sleep/lpm
     chown bluetooth net_bt_stack /proc/bluetooth/sleep/btwrite
 
-# InputMethodManagerService   # RC mod fix log error
+# InputMethodManagerService                                   # RC mod fix log error
     mkdir /data/system/inputmethod 0666 system system
 
 # backlight
@@ -154,27 +129,25 @@ on boot
     chown 666 /dev/ecompass_ctrl
     chown 666 /sys/devices/platform/lis3lv02d/position
 
-# power
+# Power management settings
     chown system system /sys/module/cpu_tegra/parameters/cpu_user_cap
 
-# Power management settings
-    write /sys/devices/system/cpu/cpufreq/interactive/boost_factor 2
-    write /sys/devices/system/cpu/cpufreq/interactive/input_boost 1
-    write /sys/devices/system/cpu/cpufreq/interactive/sustain_load 0    
-    # sleep freeze workaround
-    write /sys/module/cpuidle/parameters/lp2_in_idle 1
+# sleep freeze workaround # RC: Sets got to deep sleep mode quicker
+    #write /sys/module/cpuidle/parameters/lp2_in_idle 1
 
-# Interactive governor settings
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/boost_factor
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/boost_factor
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/go_maxspeed_load
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/go_maxspeed_load
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/io_is_busy
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/io_is_busy
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/max_boost
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/max_boost
-    chown system system /sys/devices/system/cpu/cpufreq/interactive/sustain_load
-    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/sustain_load
+# Interactive Governor Settings   (write cpufreq before cpu0,cpu1)
+#            ******** Governor Settings Reapplied on Post_Boot **************
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq 216000  #
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq 1408000 # ** SET 1.4Ghz **
+    write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor interactive # Set Governor
+    write /sys/devices/system/cpu/cpu1/cpufreq/scaling_min_freq 216000  # Same Governor for
+    write /sys/devices/system/cpu/cpu1/cpufreq/scaling_max_freq 1408000 # both cores
+    write /sys/devices/system/cpu/cpu1/cpufreq/scaling_governor interactive
+    write /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load 80
+    write /sys/devices/system/cpu/cpufreq/interactive/boost_factor 2    # file not exist?
+    write /sys/devices/system/cpu/cpufreq/interactive/input_boost 1
+    write /sys/devices/system/cpu/cpufreq/interactive/sustain_load 80
+    write /sys/devices/system/cpu/cpufreq/interactive/io_is_busy  1
 
 # MBM modem
 # Enable USB auto suspend for MBM devices
@@ -186,23 +159,29 @@ on boot
     chown radio radio /dev/cdc-wdm1
     chmod 0660 /dev/cdc-wdm1
 
-    # ril control auto-suspend  #RC addition: ver23
+    # autosuspend root hubs immediatly after attached devices  # RC note: ****USB power setting*** TURN OFF **
+    #write /sys/bus/usb/devices/usb1/power/autosuspend_delay_ms 0 # 2000 default
+    #write /sys/bus/usb/devices/usb2/power/autosuspend_delay_ms 0
+
+    # ril control auto-suspend                                  # RC addition: ver23
     chmod 0660 /sys/bus/usb/devices/usb1/power/control
     chown radio radio /sys/bus/usb/devices/usb1/power/control
     write /sys/bus/usb/devices/usb1/power/control on  # RC: devices resumes not resets, not self suspend. apply earlier
 
 # Set NITZ Feature on or off
     setprop mbm.ril.config.nitz yes
+
 # Enable RIL Fast Dormancy
     setprop mbm.ril.config.fd yes
+
 # Enable Neighboring Cell Info support
     setprop mbm.ril.config.nci screen
 
 # Define TCP buffer sizes for various networks
 #   ReadMin, ReadInitial, ReadMax, WriteMin, WriteInitial, WriteMax,
     setprop net.tcp.buffersize.default 4096,87380,110208,4096,16384,110208
-    setprop net.tcp.buffersize.wifi    65535,256000,512000,65535,128000,512000
-    setprop net.tcp.buffersize.lte     65535,256000,512000,65535,128000,512000
+    setprop net.tcp.buffersize.wifi    524288,1048576,2097152,262144,524288,1048576
+    setprop net.tcp.buffersize.lte     524288,1048576,2560000,262144,524288,1220608
     setprop net.tcp.buffersize.umts    4094,87380,110208,4096,16384,110208
     setprop net.tcp.buffersize.hspa    4092,87380,704512,4096,16384,262144
     setprop net.tcp.buffersize.hsupa   4092,87380,704512,4096,16384,262144
@@ -212,6 +191,25 @@ on boot
     setprop net.tcp.buffersize.gprs    4092,8760,11680,4096,8760,11680
     setprop net.tcp.buffersize.evdo    4094,87380,262144,4096,16384,262144
     setprop net.tcp.buffersize.evdo_b  4094,87380,262144,4096,16384,262144
+
+# Default Read Ahead value for sdcards
+    write /sys/block/mmcblk0/queue/read_ahead_kb 1024
+    write /sys/block/mmcblk1/queue/read_ahead_kb 1024
+
+# Set I/O scheduler noop deadline cfq sio bfq row
+    write /sys/block/mmcblk0/queue/scheduler noop
+    write /sys/block/mmcblk1/queue/scheduler noop
+    write /sys/block/mtdblock3/queue/scheduler noop
+    write /sys/block/mtdblock4/queue/scheduler noop
+
+    chown system system /sys/block/mmcblk0/queue/scheduler
+    chmod 0664 /sys/block/mmcblk0/queue/scheduler
+    chown system system /sys/block/mmcblk1/queue/scheduler
+    chmod 0664 /sys/block/mmcblk1/queue/scheduler
+    chown system system /sys/block/mtdblock3/queue/scheduler
+    chmod 0664 /sys/block/mtdblock3/queue/scheduler
+    chown system system /sys/block/mtdblock4/queue/scheduler
+    chmod 0664 /sys/block/mtdblock4/queue/scheduler
 
 # GPS
     mkdir /data/gps
@@ -228,11 +226,9 @@ on boot
     chown gps system /sys/class/gpio/gpio171/value
     chmod 0664 /sys/class/gpio/gpio171/value
 
-# Default Read Ahead value for sdcards
-    write /sys/block/mmcblk0/queue/read_ahead_kb 1024
-    write /sys/block/mmcblk1/queue/read_ahead_kb 1024
+    write /sys/devices/platform/smba1006-pm-gps/power_on 1         # RC mod: GPS enable?
 
-# stop ril-daemon if this is a wifi-only device
+# stop ril-daemon if this is a wifi-only device    # RC add: from Slim
 on property:ro.carrier=wifi-only
     stop ril-daemon
 
@@ -354,31 +350,18 @@ service fuse_usbdisk1 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/usbdis
     class late_start
     disabled
 
-on property:ro.fuse_sdcard=true
-    start sdcard
+# G5Sensor daemon for ecompass                  # RC : copied from Slimrom
+#service g5sensord /system/bin/g5sensord
+ #   class main
+#    user system
+#    group misc
+ #   oneshot
 
-# Binding fuse mount point to /storage/emulated/legacy
-#on property:init.svc.sdcard=running
-#    wait /mnt/shell/emulated/0
-#    mount none /mnt/shell/emulated/0 /storage/emulated/legacy bind
-
-# This will make sure that sdcard service starts as late_start.
-on nonencrypted
-    setprop ro.fuse_sdcard ${persist.fuse_sdcard}
-
-on property:vold.decrypt=trigger_restart_framework
-    setprop ro.fuse_sdcard ${persist.fuse_sdcard}
-
-# Enable tcpdump-service
-#service netdump-service /system/xbin/tcpdump -i any -C 5 -p -s 0 -w /sdcard/netdump.cap
+# Start GPS daemon  # RC: not compatible with adam, bummer
+#service gps-daemon /system/bin/glgps_nvidiaTegra2android -c /system/etc/gps.conf
+#    class late_start
 #    user root
-#    disabled
-#
-#on property:net.netdump.enable=1
-#    start netdump-service
-#
-#on property:net.netdump.enable=0
-#    stop netdump-service
+#    group root
 
 # 3G library selection
 service wwlanselect /system/bin/sh /system/bin/wwlan_select.sh
@@ -406,8 +389,8 @@ on device-removed-/dev/ttyUSB2
 on device-removed-/dev/ttyUSB3
     stop ril-daemon
 
-on property:init.svc.bootanim=stopped
-    start wwlanselect
+on property:init.svc.vold=running
+    start adam_preboot
 
 # Preboot service
 service adam_preboot /system/bin/sh /system/etc/adam_preboot.sh
@@ -422,7 +405,13 @@ service adam_postboot /system/bin/sh /system/etc/adam_postboot.sh
 on property:init.svc.bootanim=stopped
     start adam_postboot
     class_start postbootinit
+    setprop temp.sys.usb.config ${persist.sys.usb.config}
+    setprop sys.usb.config none
+    setprop sys.usb.config ${temp.sys.usb.config}
+    start wwlanselect
 
 on property:init.svc.vold=running
     start adam_preboot
-    
+    #start g5sensord
+
+
