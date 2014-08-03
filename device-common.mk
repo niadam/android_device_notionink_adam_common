@@ -85,7 +85,8 @@ PRODUCT_COPY_FILES += \
 #   device/notionink/adam_common/files/apns-conf.xml:system/etc/apns-conf.xml
 
 PRODUCT_COPY_FILES += \
-   device/notionink/adam_common/files/adam_preboot.sh:system/etc/adam_preboot.sh
+   device/notionink/adam_common/files/adam_preboot.sh:system/etc/adam_preboot.sh \
+   device/notionink/adam_common/files/adam_postboot.sh:system/etc/adam_postboot.sh
       
 PRODUCT_PROPERTY_OVERRIDES := \
     wifi.interface=wlan0 \
