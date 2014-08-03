@@ -88,7 +88,10 @@ on post-fs-data
     mkdir /data/misc/dhcp 0770 dhcp dhcp
     chown dhcp dhcp /data/misc/dhcp
 
+    # Wiimote connect status
     mkdir /data/misc/wminput 0776 system system
+    write /data/misc/wminput/connected 0
+    chmod 0666 /data/misc/wminput/connected
 
     # we will remap this as /mnt/sdcard with the sdcard fuse tool
     mkdir /data/media 0777 media_rw media_rw
