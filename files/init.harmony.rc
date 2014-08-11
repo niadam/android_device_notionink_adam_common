@@ -1,5 +1,5 @@
 import init.harmony.usb.rc
-#                                    RC mod: ver23c
+#                                    RC mod: ver23f
 on early-init
     mount debugfs debugfs /sys/kernel/debug
 
@@ -52,13 +52,16 @@ on post-fs
     # Keep rootfs rw since FUSE needs dir creation
     mount rootfs rootfs / rw remount
 
+    # ril control auto-suspend                                  # RC addition: ver23
+    chmod 0660 /sys/bus/usb/devices/usb1/power/control
+    chown radio radio /sys/bus/usb/devices/usb1/power/control
+    # ** RC: forces usb devices to resume not reset after sleep, also to not self suspend.**
+    write /sys/bus/usb/devices/usb1/power/control on
+
 on post-fs-data
 
     # we will remap this as /mnt/sdcard with the sdcard fuse tool
     mkdir /data/media 0775 media_rw media_rw
-
-    # ** RC: usb devices resume not reset after sleep, also do not self suspend. write early **
-    write /sys/bus/usb/devices/usb1/power/control on  
 
     # Camera calibration                     # RC mod: add 
     mkdir /data/misc/camera 0770 media media
@@ -159,14 +162,10 @@ on boot
     chown radio radio /dev/cdc-wdm1
     chmod 0660 /dev/cdc-wdm1
 
-    # autosuspend root hubs immediatly after attached devices  # RC note: ****USB power setting*** TURN OFF **
-    #write /sys/bus/usb/devices/usb1/power/autosuspend_delay_ms 0 # 2000 default
+    # autosuspend root hubs immediatly after attached devices  # RC note: *USB power setting, use "control" instead*
+    #write /sys/bus/usb/devices/usb1/power/autosuspend_delay_ms 0 # (2000 default)
     #write /sys/bus/usb/devices/usb2/power/autosuspend_delay_ms 0
 
-    # ril control auto-suspend                                  # RC addition: ver23
-    chmod 0660 /sys/bus/usb/devices/usb1/power/control
-    chown radio radio /sys/bus/usb/devices/usb1/power/control
-    write /sys/bus/usb/devices/usb1/power/control on  # RC: devices resumes not resets, not self suspend. apply earlier
 
 # Set NITZ Feature on or off
     setprop mbm.ril.config.nitz yes
@@ -178,19 +177,7 @@ on boot
     setprop mbm.ril.config.nci screen
 
 # Define TCP buffer sizes for various networks
-#   ReadMin, ReadInitial, ReadMax, WriteMin, WriteInitial, WriteMax,
-    setprop net.tcp.buffersize.default 4096,87380,110208,4096,16384,110208
-    setprop net.tcp.buffersize.wifi    524288,1048576,2097152,262144,524288,1048576
-    setprop net.tcp.buffersize.lte     524288,1048576,2560000,262144,524288,1220608
-    setprop net.tcp.buffersize.umts    4094,87380,110208,4096,16384,110208
-    setprop net.tcp.buffersize.hspa    4092,87380,704512,4096,16384,262144
-    setprop net.tcp.buffersize.hsupa   4092,87380,704512,4096,16384,262144
-    setprop net.tcp.buffersize.hsdpa   4092,87380,704512,4096,16384,110208
-    setprop net.tcp.buffersize.hspap   4092,87380,704512,4096,16384,262144
-    setprop net.tcp.buffersize.edge    4093,26280,35040,4096,16384,35040
-    setprop net.tcp.buffersize.gprs    4092,8760,11680,4096,8760,11680
-    setprop net.tcp.buffersize.evdo    4094,87380,262144,4096,16384,262144
-    setprop net.tcp.buffersize.evdo_b  4094,87380,262144,4096,16384,262144
+    # RC: mod  Duplicate code in init.rc
 
 # Default Read Ahead value for sdcards
     write /sys/block/mmcblk0/queue/read_ahead_kb 1024
@@ -217,7 +204,9 @@ on boot
     chmod 774 /data/gps
     chown gps system /dev/ttyHS3
     chmod 0664 /dev/ttyHS3
-    chmod 0666 /sys/devices/platform/smba1006-pm-gps/power_on
+    chown gps system /sys/devices/platform/smba1006-pm-gps/power_on
+    chmod 0664 /sys/devices/platform/smba1006-pm-gps/power_on
+    write /sys/devices/platform/smba1006-pm-gps/power_on 1         # RC mod: GPS enable?
 
 # GPS power gpio
     write /sys/class/gpio/export 171 
@@ -226,7 +215,6 @@ on boot
     chown gps system /sys/class/gpio/gpio171/value
     chmod 0664 /sys/class/gpio/gpio171/value
 
-    write /sys/devices/platform/smba1006-pm-gps/power_on 1         # RC mod: GPS enable?
 
 # stop ril-daemon if this is a wifi-only device    # RC add: from Slim
 on property:ro.carrier=wifi-only
@@ -389,9 +377,6 @@ on device-removed-/dev/ttyUSB2
 on device-removed-/dev/ttyUSB3
     stop ril-daemon
 
-on property:init.svc.vold=running
-    start adam_preboot
-
 # Preboot service
 service adam_preboot /system/bin/sh /system/etc/adam_preboot.sh
     user root
@@ -413,5 +398,4 @@ on property:init.svc.bootanim=stopped
 on property:init.svc.vold=running
     start adam_preboot
     #start g5sensord
-
 
