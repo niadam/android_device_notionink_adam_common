@@ -169,7 +169,10 @@ PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
 
 ADDITIONAL_DEFAULT_PROPERTIES += \
 	ro.secure=0 \
-	ro.adb.secure=0
+	ro.adb.secure=0 \
+	ro.serial=0123456789ABCDEF \
+	ro.product.manufacturer=NotionInk \
+	ro.product.model=NotionInk_ADAM
 
 PRODUCT_CHARACTERISTICS := tablet
 
